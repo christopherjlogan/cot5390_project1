@@ -1,1 +1,25 @@
+steps:
+  # Step 1: Install dependencies
+  - name: 'python:3.9-slim'
+    id: 'Install dependencies'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install -r requirements.txt
 
+  # Step 2: Deploy to Google App Engine
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to App Engine'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud app deploy app.yaml --quiet
+
+# Optional: Timeout setting if the build takes a while
+timeout: '900s'  # 15 minutes timeout (adjust as necessary)
+
+# Substitutions to use dynamic variables
+substitutions:
+  _DEPLOYMENT_ENV: 'production'
