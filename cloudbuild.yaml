@@ -1,6 +1,6 @@
 steps:
   # Step 1: Install dependencies
-  - name: 'python:3.9-slim'
+  - name: 'python:3.9'
     id: 'Install dependencies'
     entrypoint: 'bash'
     args:
