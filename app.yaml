@@ -1,1 +1,19 @@
+runtime: python39  # Python 3.9 runtime, adjust if using a different version
 
+entrypoint: gunicorn -b :$PORT main:app  # Gunicorn to serve your Flask app
+
+# Optional scaling settings
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 5
+
+# Optional environment variables
+env_variables:
+  FLASK_ENV: 'production'
+  SECRET_KEY: 'your-secret-key'
+
+# Network settings (optional)
+network:
+  session_affinity: true
+  instance_tag: flask-app
