@@ -20,9 +20,5 @@ steps:
 # Optional: Timeout setting if the build takes a while
 timeout: '900s'  # 15 minutes timeout (adjust as necessary)
 
-# Substitutions to use dynamic variables
-substitutions:
-  _DEPLOYMENT_ENV: 'production'
-
 options:
   logging: CLOUD_LOGGING_ONLY
