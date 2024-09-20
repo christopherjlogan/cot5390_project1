@@ -19,3 +19,6 @@ steps:
 
 # Optional: Timeout setting (adjust as necessary)
 timeout: '900s'  # 15 minutes timeout
+
+options:
+  logging: CLOUD_LOGGING_ONLY
