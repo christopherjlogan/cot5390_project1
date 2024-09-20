@@ -1,6 +1,4 @@
 import os
-from importlib.metadata import files
-
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
 from werkzeug.utils import secure_filename
 from google.cloud import texttospeech
@@ -24,9 +22,7 @@ ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
 # Ensure the upload directory exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 # Function to check if file extension is allowed
 def allowed_file(filename):
