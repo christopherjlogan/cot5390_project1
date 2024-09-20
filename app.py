@@ -1,12 +1,21 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from importlib.metadata import files
+
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
 from werkzeug.utils import secure_filename
 from google.cloud import texttospeech
+from google.cloud import speech
 from datetime import datetime
 from typing import Sequence
+from google.oauth2 import service_account
 
 # Create a Flask app
 app = Flask(__name__)
+app.secret_key = 'COT5930'
+
+SERVICE_ACCOUNT_FILE = "credentials/service-account.json"
+credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
+ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
 
 # Set the upload folder and allowed extensions
 UPLOAD_FOLDER = 'uploads/'
@@ -24,20 +33,20 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):
-    language_set = set()
+    language_list = []
     for voice in voices:
         for language_code in voice.language_codes:
-            language_set.add(language_code)
-    return language_set
+            if language_code not in language_list:  # Check for uniqueness
+                language_list.append(language_code)
+    return language_list
 
 def list_languages():
-    client = texttospeech.TextToSpeechClient()
-    response = client.list_voices()
+    response = ttsclient.list_voices()
     languages = unique_languages_from_voices(response.voices)
-
     print(f" Languages: {len(languages)} ".center(60, "-"))
     for i, language in enumerate(sorted(languages)):
         print(f"{language:>10}", end="\n" if i % 5 == 4 else "")
+    return languages
 
 # Route to display the HTML page with audio files
 @app.route('/')
@@ -45,7 +54,8 @@ def index():
     # Get the list of uploaded audio files
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     languages = list_languages()
-    return render_template('index.html', files=files, languages=languages)
+    transcript = session.pop('transcript', '')
+    return render_template('index.html', files=files, languages=languages, transcript=transcript)
 
 
 # Route to handle file uploads
@@ -68,22 +78,20 @@ def upload_file():
 
     return redirect(url_for('index'))
 
-
-# Route to generate speech using Google Text-to-Speech API
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
     text_input = request.form['text']
-
-    # Initialize Google Cloud Text-to-Speech client
-    client = texttospeech.TextToSpeechClient()
+    selected_language = request.form['language']
+    selected_gender = request.form['gender']
 
     # Set the text input for synthesis
+
     synthesis_input = texttospeech.SynthesisInput(text=text_input)
 
-    # Select the voice and language
+    # Set the voice parameters, using the selected language
     voice = texttospeech.VoiceSelectionParams(
-        language_code="en-US",
-        ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+        language_code=selected_language,
+        ssml_gender=selected_gender
     )
 
     # Select the audio format
@@ -92,21 +100,54 @@ def text_to_speech():
     )
 
     # Perform the text-to-speech request
-    response = client.synthesize_speech(
+    response = ttsclient.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
 
-    # Use a timestamp-based filename
+    # Save the audio file
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"tts_{timestamp}.mp3"
+    filename = f"tts_{timestamp}_{selected_language}_{selected_gender}.mp3"
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-    # Save the audio file
     with open(filepath, "wb") as out:
         out.write(response.audio_content)
 
     return redirect(url_for('index'))
 
+from google.cloud import speech
+import io
+
+@app.route('/speech-to-text', methods=['POST'])
+def speech_to_text():
+    filename = request.form['filename']
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+    # Initialize the Google Cloud Speech-to-Text client
+    sttclient = speech.SpeechClient(credentials=credentials)
+
+    # Read the audio file
+    with io.open(filepath, "rb") as audio_file:
+        content = audio_file.read()
+
+    # Configure the audio and recognition settings
+    audio = speech.RecognitionAudio(content=content)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Assuming MP3 files
+        sample_rate_hertz=16000,  # Adjust if necessary
+        language_code="en-US"
+    )
+
+    # Perform speech recognition
+    response = sttclient.recognize(config=config, audio=audio)
+
+    # Extract the transcribed text
+    transcript = ""
+    for result in response.results:
+        transcript += result.alternatives[0].transcript
+    print(f"Transcribed text for {filename}: {transcript}")
+    session['transcript'] = transcript
+    #return render_template('index.html', files=files, languages=languages, transcript=transcript)
+    return redirect(url_for('index'))
 
 # Route to serve uploaded files dynamically
 @app.route('/uploads/<filename>')

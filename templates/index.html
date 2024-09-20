@@ -23,28 +23,32 @@
     <br>
     <button id="uploadRecord" disabled>Upload Recording</button>
 
-    <div class="container">
-        <!-- Text-to-Speech input form -->
-        <div class="input-box">
-            <form action="/text-to-speech" method="POST">
-                <textarea name="text" rows="5" cols="40" placeholder="Enter text here" required></textarea>
-                <br>
-                <button type="submit">Convert to Speech</button>
-            </form>
-        </div>
-
-        <!-- Available languages list -->
+    <h2>Convert Text to Speech</h2>
+    <form action="/text-to-speech" method="POST">
+        <textarea name="text" rows="5" cols="40" placeholder="Enter text here" required></textarea>
+        <br>
         <div class="languages-box">
-            <h3>Available Languages</h3>
-            <ul>
+            <h3>Select a Language and Gender</h3>
+            <label for="language">Choose a language:</label>
+            <select name="language" id="language" required>
                 {% for language in languages %}
-                    <li>{{ language }}</li>
+                    <option value="{{ language }}">{{ language }}</option>
                 {% endfor %}
-            </ul>
+            </select>
+            <label for="gender">Choose a gender:</label>
+            <select name="gender" id="gender" required>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+            </select>
         </div>
-    </div>
+        <br>
+        <button type="submit">Convert to Speech</button>
+    </form>
 
     <h2>Uploaded Audio Files</h2>
+    {% if transcript %}
+        <h3>Selected Speech to Text Transcription:</h3>{{ transcript }}
+    {% endif %}
     <ul>
         {% for file in files %}
         <li>
@@ -53,6 +57,10 @@
                 Your browser does not support the audio element.
             </audio>
             {{ file }}
+             <form action="/speech-to-text" method="POST" style="display:inline;">
+                <input type="hidden" name="filename" value="{{ file }}">
+                <button type="submit">Convert to Text</button>
+            </form>
         </li>
         {% endfor %}
     </ul>
