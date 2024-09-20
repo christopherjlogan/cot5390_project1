@@ -1,6 +1,6 @@
 steps:
-  # Step 1: Install dependencies
-  - name: 'python:3.9'
+  # Step 1: Install dependencies from requirements.txt
+  - name: 'python:3.9-slim'
     id: 'Install dependencies'
     entrypoint: 'bash'
     args:
@@ -17,8 +17,5 @@ steps:
       - |
         gcloud app deploy app.yaml --quiet
 
-# Optional: Timeout setting if the build takes a while
-timeout: '900s'  # 15 minutes timeout (adjust as necessary)
-
-options:
-  logging: CLOUD_LOGGING_ONLY
+# Optional: Timeout setting (adjust as necessary)
+timeout: '900s'  # 15 minutes timeout
