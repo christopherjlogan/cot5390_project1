@@ -25,6 +25,7 @@ steps:
     args:
       - '-c'
       - |
+        gcloud init
         gcloud app deploy app.yaml --quiet
 
 options:
