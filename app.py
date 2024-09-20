@@ -1,86 +1,48 @@
-from datetime import datetime
-
-from flask import Flask, render_template, request, redirect, url_for, send_file, send_from_directory
-from werkzeug.utils import secure_filename
-
 import os
+from flask import Flask, render_template, request, redirect, url_for
 
+# Create a Flask app
 app = Flask(__name__)
 
-# Configure upload folder
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'wav'}
+# Set the upload folder and allowed extensions
+UPLOAD_FOLDER = 'uploads/'
+ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
+
+# Ensure the upload directory exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# Function to check if file extension is allowed
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def get_files():
-    files = []
-    for filename in os.listdir(UPLOAD_FOLDER):
-        if allowed_file(filename):
-            files.append(filename)
-            print(filename)
-    files.sort(reverse=True)
-    return files
 
+# Route to display the HTML page with audio files
 @app.route('/')
 def index():
-    files = get_files()
+    # Get the list of uploaded audio files
+    files = os.listdir(app.config['UPLOAD_FOLDER'])
     return render_template('index.html', files=files)
 
+
+# Route to handle file uploads
 @app.route('/upload', methods=['POST'])
-def upload_audio():
-    if 'audio_data' not in request.files:
-        flash('No audio data')
+def upload_file():
+    if 'file' not in request.files:
         return redirect(request.url)
-    file = request.files['audio_data']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    if file:
-        # filename = secure_filename(file.filename)
-        filename = datetime.now().strftime("%Y%m%d-%I%M%S%p") + '.wav'
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
 
-        #
-        #
-        # Modify this block to call the speech to text API
-        # Save transcript to same filename but .txt
-        #
-        #
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return redirect(url_for('index'))
 
-    return redirect('/') #success
+    return redirect(url_for('index'))
 
-@app.route('/upload/<filename>')
-def get_file(filename):
-    return send_file(filename)
-
-    
-@app.route('/upload_text', methods=['POST'])
-def upload_text():
-    text = request.form['text']
-    print(text)
-    #
-    #
-    # Modify this block to call the stext to speech API
-    # Save the output as a audio file in the 'tts' directory 
-    # Display the audio files at the bottom and allow the user to listen to them
-    #
-
-    return redirect('/') #success
-
-@app.route('/script.js',methods=['GET'])
-def scripts_js():
-    return send_file('./script.js')
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
+    # Start the Flask web server
     app.run(debug=True)

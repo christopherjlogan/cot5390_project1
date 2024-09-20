@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio File Uploader</title>
+</head>
+<body>
+    <h1>Upload an Audio File</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".mp3, .wav, .ogg" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Uploaded Audio Files</h2>
+    <ul>
+        {% for file in files %}
+        <li>
+            <audio controls>
+                <source src="{{ url_for('static', filename='uploads/' ~ file) }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            {{ file }}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
