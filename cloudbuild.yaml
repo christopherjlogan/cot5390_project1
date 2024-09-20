@@ -16,7 +16,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud auth activate-service-account --key-file=credentials/service-account.json
+        
 
   # Step 3: Deploy to Google App Engine
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -26,3 +26,6 @@ steps:
       - '-c'
       - |
         gcloud app deploy app.yaml --quiet
+
+options:
+  logging: CLOUD_LOGGING_ONLY
