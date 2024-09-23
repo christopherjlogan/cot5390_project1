@@ -14,12 +14,14 @@ app.secret_key = 'COT5930'
 SERVICE_ACCOUNT_FILE = "credentials/service-account.json"
 # Check if the service account file exists
 if os.path.exists(SERVICE_ACCOUNT_FILE):
+    RUN_LOCALLY = True
     print("Service account file found, loading credentials...")
     credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
     ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
     sttclient = speech.SpeechClient(credentials=credentials)
     gcsclient = storage.Client(credentials=credentials)
 else:
+    RUN_LOCALLY = False
     print("No service account file found, using Application Default Credentials (ADC)...")
     # Use Application Default Credentials (ADC)
     ttsclient = texttospeech.TextToSpeechClient()
@@ -32,7 +34,7 @@ BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
 
 # Ensure the upload directory exists
-if not os.path.exists(UPLOAD_FOLDER):
+if not os.path.exists(UPLOAD_FOLDER) and RUN_LOCALLY:
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -77,7 +79,7 @@ def list_languages():
 @app.route('/')
 def index():
     # Get the list of uploaded audio files
-    files = get_uploaded_files(UPLOAD_FOLDER)
+    files = get_uploaded_files(app.config['UPLOAD_FOLDER'])
     languages = list_languages()
     transcript = session.pop('transcript', '')
     return render_template('index.html', files=files, languages=languages, transcript=transcript)
@@ -96,9 +98,7 @@ def upload_file():
         filename = f"recording_{timestamp}.{ext}"
         filename = secure_filename(filename)  # Secure the filename
 
-        # Save the file
-        #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        public_url = upload_to_cloud_storage(file, filename, UPLOAD_FOLDER)
+        public_url = upload_to_cloud_storage(file, filename, app.config['UPLOAD_FOLDER'])
 
     return redirect(url_for('index'))
 
@@ -131,7 +131,7 @@ def text_to_speech():
     # Save the audio file
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     filename = f"tts_{timestamp}_{selected_language}_{selected_gender}.mp3"
-    upload_to_cloud_storage(response.audio_content, filename, UPLOAD_FOLDER)
+    upload_to_cloud_storage(response.audio_content, filename, app.config['UPLOAD_FOLDER'])
 
     return redirect(url_for('index'))
 
@@ -146,7 +146,7 @@ def download_blob_as_bytes(bucket_name, blob_name):
 @app.route('/speech-to-text', methods=['POST'])
 def speech_to_text():
     filename = request.form['filename']
-    file_path = f"{UPLOAD_FOLDER}/{filename}"
+    file_path = f"{app.config['UPLOAD_FOLDER']}/{filename}"
 
     # Download the audio file from Google Cloud Storage
     file_content = download_blob_as_bytes(BUCKET_NAME, file_path)
