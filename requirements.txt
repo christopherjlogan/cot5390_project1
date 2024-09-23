@@ -1,6 +1,7 @@
 Flask==3.0.3
-gunicorn==20.1.0
+gunicorn==
 google-cloud-texttospeech
 google-cloud-speech
+google-cloud-storage
 werkzeug~=3.0.4
 protobuf~=5.28.2

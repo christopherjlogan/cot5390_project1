@@ -6,6 +6,7 @@ from google.cloud import speech
 from datetime import datetime
 from typing import Sequence
 from google.oauth2 import service_account
+from google.cloud import storage
 
 # Create a Flask app
 app = Flask(__name__)
@@ -28,7 +29,8 @@ else:
     sttclient = speech.SpeechClient()
 
 # Set the upload folder and allowed extensions
-UPLOAD_FOLDER = 'uploads/'
+UPLOAD_FOLDER = '/tmp/uploads/'
+BUCKET_NAME = 'your-bucket-name'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
 
 # Ensure the upload directory exists
@@ -39,6 +41,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Function to check if file extension is allowed
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def upload_to_cloud_storage(file, filename):
+    client = storage.Client()
+    bucket = client.get_bucket(BUCKET_NAME)
+    blob = bucket.blob(filename)
+    blob.upload_from_file(file)
+    return blob.public_url
 
 def unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):
     language_list = []
@@ -81,8 +90,8 @@ def upload_file():
         filename = secure_filename(filename)  # Secure the filename
 
         # Save the file
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return redirect(url_for('index'))
+        #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        public_url = upload_to_cloud_storage(file, filename)
 
     return redirect(url_for('index'))
 

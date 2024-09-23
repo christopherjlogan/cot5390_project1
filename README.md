@@ -3,12 +3,10 @@
 Student: Chris Logan
 Email: loganc2023@fau.edu
 
-GCP Project Name: projectYY
-GCP Project ID: projectYY (link to google cloud console to your project page)
-** Make sure you have added the instructor and TAs to the GCP project with “Project Viewer”
-role
+GCP Project Name: cot5390project1
+GCP Project ID: https://console.cloud.google.com/welcome/new?project=cot5390project1
 Cloud Run Service name: app123
-App URL: http://abc/app1/xyz
+App URL: https://cot5390project1.uc.r.appspot.com/
 
 ## Introduction
 Describe what the project is all about, its goals and objectives. High level definition of the
