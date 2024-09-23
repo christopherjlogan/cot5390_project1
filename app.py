@@ -12,8 +12,20 @@ app = Flask(__name__)
 app.secret_key = 'COT5930'
 
 SERVICE_ACCOUNT_FILE = "credentials/service-account.json"
-credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
-ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
+#credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
+#ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
+
+# Check if the service account file exists
+if os.path.exists(SERVICE_ACCOUNT_FILE):
+    print("Service account file found, loading credentials...")
+    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
+    ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
+    sttclient = speech.SpeechClient(credentials=credentials)
+else:
+    print("No service account file found, using Application Default Credentials (ADC)...")
+    # Use Application Default Credentials (ADC)
+    ttsclient = texttospeech.TextToSpeechClient()
+    sttclient = speech.SpeechClient()
 
 # Set the upload folder and allowed extensions
 UPLOAD_FOLDER = 'uploads/'
@@ -117,9 +129,6 @@ import io
 def speech_to_text():
     filename = request.form['filename']
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-    # Initialize the Google Cloud Speech-to-Text client
-    sttclient = speech.SpeechClient(credentials=credentials)
 
     # Read the audio file
     with io.open(filepath, "rb") as audio_file:
