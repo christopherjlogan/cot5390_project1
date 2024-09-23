@@ -1,5 +1,5 @@
 steps:
-  # Step 1: Install dependencies
+  # Install dependencies
   - name: 'python:3.9-slim'
     id: 'Install dependencies'
     entrypoint: 'bash'
@@ -9,23 +9,13 @@ steps:
         pip install --upgrade pip
         pip install -r requirements.txt
 
-  # Step 2: Set up Google Cloud credentials using service account JSON in the repo
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'Set up credentials'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        
-
-  # Step 3: Deploy to Google App Engine
+  # Deploy to Google App Engine
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'Deploy to App Engine'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gcloud init
         gcloud app deploy app.yaml --quiet
 
 options:
