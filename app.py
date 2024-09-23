@@ -1,12 +1,11 @@
 import os
+import io
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
 from werkzeug.utils import secure_filename
-from google.cloud import texttospeech
-from google.cloud import speech
 from datetime import datetime
 from typing import Sequence
 from google.oauth2 import service_account
-from google.cloud import storage
+from google.cloud import storage, speech, texttospeech
 
 # Create a Flask app
 app = Flask(__name__)
@@ -28,7 +27,7 @@ else:
     gcsclient = storage.Client()
 
 # Set the upload folder and allowed extensions
-UPLOAD_FOLDER = '/tmp/uploads/'
+UPLOAD_FOLDER = '/uploads'
 BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
 
@@ -132,29 +131,30 @@ def text_to_speech():
     # Save the audio file
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     filename = f"tts_{timestamp}_{selected_language}_{selected_gender}.mp3"
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-    with open(filepath, "wb") as out:
-        out.write(response.audio_content)
+    upload_to_cloud_storage(response.audio_content, filename, UPLOAD_FOLDER)
 
     return redirect(url_for('index'))
 
-from google.cloud import speech
-import io
+def download_blob_as_bytes(bucket_name, blob_name):
+    """Downloads a blob from the bucket as bytes."""
+    client = storage.Client()
+    bucket = client.get_bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+
+    return blob.download_as_bytes()
 
 @app.route('/speech-to-text', methods=['POST'])
 def speech_to_text():
     filename = request.form['filename']
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = f"{UPLOAD_FOLDER}/{filename}"
 
-    # Read the audio file
-    with io.open(filepath, "rb") as audio_file:
-        content = audio_file.read()
+    # Download the audio file from Google Cloud Storage
+    file_content = download_blob_as_bytes(BUCKET_NAME, file_path)
 
     # Configure the audio and recognition settings
-    audio = speech.RecognitionAudio(content=content)
+    audio = speech.RecognitionAudio(content=file_content)
     config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Assuming MP3 files
+        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
         sample_rate_hertz=16000,  # Adjust if necessary
         language_code="en-US"
     )
@@ -167,8 +167,8 @@ def speech_to_text():
     for result in response.results:
         transcript += result.alternatives[0].transcript
     print(f"Transcribed text for {filename}: {transcript}")
-    session['transcript'] = transcript
-    #return render_template('index.html', files=files, languages=languages, transcript=transcript)
+
+    session['transcript'] = transcript  # Store transcript in session
     return redirect(url_for('index'))
 
 # Route to serve uploaded files dynamically
