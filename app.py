@@ -30,7 +30,7 @@ else:
 
 # Set the upload folder and allowed extensions
 UPLOAD_FOLDER = '/tmp/uploads/'
-BUCKET_NAME = 'your-bucket-name'
+BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
 
 # Ensure the upload directory exists
