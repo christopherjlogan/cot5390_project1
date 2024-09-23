@@ -13,20 +13,19 @@ app = Flask(__name__)
 app.secret_key = 'COT5930'
 
 SERVICE_ACCOUNT_FILE = "credentials/service-account.json"
-#credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
-#ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
-
 # Check if the service account file exists
 if os.path.exists(SERVICE_ACCOUNT_FILE):
     print("Service account file found, loading credentials...")
     credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
     ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
     sttclient = speech.SpeechClient(credentials=credentials)
+    gcsclient = storage.Client(credentials=credentials)
 else:
     print("No service account file found, using Application Default Credentials (ADC)...")
     # Use Application Default Credentials (ADC)
     ttsclient = texttospeech.TextToSpeechClient()
     sttclient = speech.SpeechClient()
+    gcsclient = storage.Client()
 
 # Set the upload folder and allowed extensions
 UPLOAD_FOLDER = '/tmp/uploads/'
@@ -42,10 +41,20 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def upload_to_cloud_storage(file, filename):
-    client = storage.Client()
-    bucket = client.get_bucket(BUCKET_NAME)
-    blob = bucket.blob(filename)
+def get_uploaded_files(folder):
+    bucket = gcsclient.get_bucket(BUCKET_NAME)  # Get the bucket
+    blobs = bucket.list_blobs(prefix=folder)  # List files with the folder path prefix
+
+    files = []
+    for blob in blobs:
+        # Exclude the folder itself from the list, only add files
+        if not blob.name.endswith("/"):
+            files.append(blob.name)
+    return files
+
+def upload_to_cloud_storage(file, filename, folder):
+    bucket = gcsclient.get_bucket(BUCKET_NAME)
+    blob = bucket.blob(f"{folder}/{filename}")
     blob.upload_from_file(file)
     return blob.public_url
 
@@ -69,11 +78,10 @@ def list_languages():
 @app.route('/')
 def index():
     # Get the list of uploaded audio files
-    files = os.listdir(app.config['UPLOAD_FOLDER'])
+    files = get_uploaded_files(UPLOAD_FOLDER)
     languages = list_languages()
     transcript = session.pop('transcript', '')
     return render_template('index.html', files=files, languages=languages, transcript=transcript)
-
 
 # Route to handle file uploads
 @app.route('/upload', methods=['POST'])
@@ -91,7 +99,7 @@ def upload_file():
 
         # Save the file
         #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        public_url = upload_to_cloud_storage(file, filename)
+        public_url = upload_to_cloud_storage(file, filename, UPLOAD_FOLDER)
 
     return redirect(url_for('index'))
 
