@@ -28,35 +28,28 @@ else:
     sttclient = speech.SpeechClient()
     gcsclient = storage.Client()
 
-# Set the upload folder and allowed extensions
-UPLOAD_FOLDER = '/uploads'
 BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
-
-# Ensure the upload directory exists
-if not os.path.exists(UPLOAD_FOLDER) and RUN_LOCALLY:
-    os.makedirs(UPLOAD_FOLDER)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Function to check if file extension is allowed
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def get_uploaded_files(folder):
+def get_uploaded_files():
     bucket = gcsclient.get_bucket(BUCKET_NAME)  # Get the bucket
-    blobs = bucket.list_blobs(prefix=folder)  # List files with the folder path prefix
+    blobs = bucket.list_blobs()  # List files with the folder path prefix
 
     files = []
     for blob in blobs:
         # Exclude the folder itself from the list, only add files
         if not blob.name.endswith("/"):
-            files.append(blob.name)
+            files.append(blob.public_url)
     return files
 
-def upload_to_cloud_storage(file, filename, folder):
-    bucket = gcsclient.get_bucket(BUCKET_NAME)
-    blob = bucket.blob(f"{folder}/{filename}")
-    blob.upload_from_file(file)
+def upload_to_cloud_storage(audio_content, filename):
+    bucket = gcsclient.bucket(BUCKET_NAME)
+    blob = bucket.blob(filename)
+    blob.upload_from_string(audio_content)
     return blob.public_url
 
 def unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):
@@ -70,16 +63,13 @@ def unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):
 def list_languages():
     response = ttsclient.list_voices()
     languages = unique_languages_from_voices(response.voices)
-    print(f" Languages: {len(languages)} ".center(60, "-"))
-    for i, language in enumerate(sorted(languages)):
-        print(f"{language:>10}", end="\n" if i % 5 == 4 else "")
     return languages
 
 # Route to display the HTML page with audio files
 @app.route('/')
 def index():
     # Get the list of uploaded audio files
-    files = get_uploaded_files(app.config['UPLOAD_FOLDER'])
+    files = get_uploaded_files()
     languages = list_languages()
     transcript = session.pop('transcript', '')
     return render_template('index.html', files=files, languages=languages, transcript=transcript)
@@ -93,12 +83,12 @@ def upload_file():
     file = request.files['file']
     if file and allowed_file(file.filename):
         # Use a timestamp-based filename
-        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-        ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
-        filename = f"recording_{timestamp}.{ext}"
-        filename = secure_filename(filename)  # Secure the filename
+        #timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        #ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
+        #filename = f"recording_{timestamp}.{ext}"
+        filename = secure_filename(file.filename)  # Secure the filename
 
-        public_url = upload_to_cloud_storage(file, filename, app.config['UPLOAD_FOLDER'])
+        public_url = upload_to_cloud_storage(file.read(), filename)
 
     return redirect(url_for('index'))
 
@@ -107,8 +97,6 @@ def text_to_speech():
     text_input = request.form['text']
     selected_language = request.form['language']
     selected_gender = request.form['gender']
-
-    # Set the text input for synthesis
 
     synthesis_input = texttospeech.SynthesisInput(text=text_input)
 
@@ -131,32 +119,28 @@ def text_to_speech():
     # Save the audio file
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     filename = f"tts_{timestamp}_{selected_language}_{selected_gender}.mp3"
-    upload_to_cloud_storage(response.audio_content, filename, app.config['UPLOAD_FOLDER'])
+    upload_to_cloud_storage(response.audio_content, filename)
 
     return redirect(url_for('index'))
 
 def download_blob_as_bytes(bucket_name, blob_name):
-    """Downloads a blob from the bucket as bytes."""
-    client = storage.Client()
-    bucket = client.get_bucket(bucket_name)
+    print("Downloading blob", blob_name, "from bucket", bucket_name)
+    bucket = gcsclient.get_bucket(bucket_name)
     blob = bucket.blob(blob_name)
-
-    return blob.download_as_bytes()
+    bytes = blob.download_as_bytes()
+    return bytes
 
 @app.route('/speech-to-text', methods=['POST'])
 def speech_to_text():
     filename = request.form['filename']
-    file_path = f"{app.config['UPLOAD_FOLDER']}/{filename}"
-
-    # Download the audio file from Google Cloud Storage
-    file_content = download_blob_as_bytes(BUCKET_NAME, file_path)
-
-    # Configure the audio and recognition settings
-    audio = speech.RecognitionAudio(content=file_content)
+    language = request.form['language']
+    print("Converting", filename, "to", language)
+    audio_content = download_blob_as_bytes(BUCKET_NAME, filename[filename.rindex('/') + 1:])
+    audio = speech.RecognitionAudio(content=audio_content)
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
         sample_rate_hertz=16000,  # Adjust if necessary
-        language_code="en-US"
+        language_code=language
     )
 
     # Perform speech recognition
@@ -174,7 +158,7 @@ def speech_to_text():
 # Route to serve uploaded files dynamically
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(filename)
 
 
 if __name__ == '__main__':

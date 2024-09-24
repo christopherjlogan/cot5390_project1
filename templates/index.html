@@ -25,22 +25,19 @@
 
     <h2>Convert Text to Speech</h2>
     <form action="/text-to-speech" method="POST">
-        <textarea name="text" rows="5" cols="40" placeholder="Enter text here" required></textarea>
+        <label for="language">Choose a language:</label>
+        <select name="language" id="language" required>
+            {% for language in languages %}
+                <option value="{{ language }}">{{ language }}</option>
+            {% endfor %}
+        </select>
+        <label for="gender">Choose a gender:</label>
+        <select name="gender" id="gender" required>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+        </select>
         <br>
-        <div class="languages-box">
-            <h3>Select a Language and Gender</h3>
-            <label for="language">Choose a language:</label>
-            <select name="language" id="language" required>
-                {% for language in languages %}
-                    <option value="{{ language }}">{{ language }}</option>
-                {% endfor %}
-            </select>
-            <label for="gender">Choose a gender:</label>
-            <select name="gender" id="gender" required>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-            </select>
-        </div>
+        <textarea name="text" rows="5" cols="40" placeholder="Enter text here" required></textarea>
         <br>
         <button type="submit">Convert to Speech</button>
     </form>
@@ -53,12 +50,18 @@
         {% for file in files %}
         <li>
             <audio controls>
-                <source src="{{ url_for('uploaded_file', filename=file) }}" type="audio/mpeg">
+                <source src="{{  file }}" type="audio/mpeg">
                 Your browser does not support the audio element.
             </audio>
-            {{ file }}
+            {{ file[file.rindex('/') + 1:] }}
              <form action="/speech-to-text" method="POST" style="display:inline;">
                 <input type="hidden" name="filename" value="{{ file }}">
+                <label for="language">:</label>
+                <select name="language" id="language" required>
+                    {% for language in languages %}
+                        <option value="{{ language }}">{{ language }}</option>
+                    {% endfor %}
+                </select>
                 <button type="submit">Convert to Text</button>
             </form>
         </li>
