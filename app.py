@@ -29,7 +29,7 @@ else:
     gcsclient = storage.Client()
 
 BUCKET_NAME = 'cot5390project1.appspot.com'
-ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg'}
+ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg', 'm4a'}
 
 # Function to check if file extension is allowed
 def allowed_file(filename):
