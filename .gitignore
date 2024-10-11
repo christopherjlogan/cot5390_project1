@@ -18,3 +18,4 @@ COT5930_Project1/.idea/vcs.xml
 /uploads/
 .idea/workspace.xml
 /credentials/service-account.json
+*.deb
