@@ -99,23 +99,23 @@ Discuss what are the problems of this solution, assuming it needs to handle mult
 ## Application Instructions
 1. Uploading Speech Audio Files
    - To upload a file, click the "Choose File" button and select the audio file.  Once selected, click the Upload button.  
-![img.png](screenshot1.png)
+![img.png](reports/screenshot1.png)
 2. Recording Speech Audio
    - To record speech, click the "Start Recording" button
    - Once done speaking, click the "Stop Recording" button
    - Click the "Upload Recording" button to upload your recorded audio  
-![img.png](screenshot2.png)
+![img.png](reports/screenshot2.png)
 3. Playing Uploaded Speech Audio
    - Uploaded audio files are listed under the Uploaded Audio Files section
    - To play previously uploaded audio files, click the play button audio player control  
-![img.png](screenshot3.png)
+![img.png](reports/screenshot3.png)
 4. Converting Text to Speech Audio File
    - To convert text to speech, type your message into the textbox and choose the language and gender for conversion
    - Click the "Convert to Speech" button  
-![img.png](screenshot4.png)
+![img.png](reports/screenshot4.png)
 5. Converting Speech Audio File to Text
    - Next to the desired audio file, select the target language and click the "Convert to Text" button  
-![img.png](screenshot5.png)
+![img.png](reports/screenshot5.png)
 
 ## Lessons Learned
 1. Don't store files locally.
