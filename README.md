@@ -1,4 +1,4 @@
-# COT 5930 Project 1
+# COT 5930 Project 2
 
 Student: Chris Logan  
 Email: loganc2023@fau.edu
@@ -9,14 +9,13 @@ Github Repo: https://github.com/christopherjlogan/cot5390_project1
 App URL: https://cot5390project1.uc.r.appspot.com/  
 
 ## Assignment Instructions
-The objective of this first project will be focused on options for leveraging spoken
-language as an interface to computers.  You will create a simple web application in python to record from the user’s microphone and upload the recording to the server. And, receive a text input and generate audio from the user’s input that can be listened to in the browser. Your python application must:
-- present a html to the user with options to record and listen to the audio files
-- have a text input field and use the text to generate audio by leveraging Google’s text to speech API.
-- take the uploaded recording and generate a text transcript by leveraging Google’s speech to text API
-- recommended (but optional) - your app should be deployed to cloud run and be available in the cloud.
+Build upon your knowledge from project I and make the following adjustments:
+- Leverage the Language API in Google Cloud to evaluate the sentiment of the
+audio or text uploaded
+- Display whether the text has a positive/neutral/negative connotation
 
-Provide a report of your application, architecture, code and design decisions, with a focus on what you learned.  TAs and the Instructor must be granted access to your cloud projects and source for grading.
+Provide a report of your application, architecture, code and design decisions, with a
+focus on what you learned.
 
 ## Introduction
 This project is a proof of concept for the uploading, recording and automated bi-directional conversion of speech and text from a web application.
