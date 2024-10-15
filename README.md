@@ -8,6 +8,17 @@ GCP Project ID: https://console.cloud.google.com/welcome/new?project=cot5390proj
 Github Repo: https://github.com/christopherjlogan/cot5390_project1  
 App URL: https://cot5390project1.uc.r.appspot.com/  
 
+## Required Functionality
+### Proj 1
+1. Upload an audio file
+2. Record an audio file
+3. Generate speech audio file from user-entered text
+4. Generate and store text file from previously uploaded audio file
+5. Display list of uploaded audio files
+6. Play audio files from the list
+### Proj 2
+1. Display the sentiment of the uploaded audio or text files (positive/neutral/negative)
+
 ## Assignment Instructions
 Build upon your knowledge from project I and make the following adjustments:
 - Leverage the Language API in Google Cloud to evaluate the sentiment of the
