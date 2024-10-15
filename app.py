@@ -69,9 +69,10 @@ def home():
     return render_template('index.html')
 
 # REST methods below
-@app.route('/api/text-to-speech', methods=['GET'])
+@app.route('/api/files', methods=['GET'])
 def get_uploaded_files():
-    return jsonify({'message': 'List of uploaded files.'})
+    files = get_uploaded_files()
+    return jsonify({'message': files})
 
 @app.route('/api/upload', methods=['POST'])
 def upload_audio():
