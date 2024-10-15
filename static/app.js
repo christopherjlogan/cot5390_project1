@@ -20,6 +20,7 @@ async function loadUploadedFiles() {
     const files = await response.json();
 
     fileList.innerHTML = 'Loading list of files...'; // Clear file list
+    alert('Loading list of files...')
 
     files.forEach(file => {
         const listItem = document.createElement('div');
