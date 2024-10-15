@@ -1,26 +1,35 @@
+let uploadedFiles = []
+
 const startRecordBtn = document.getElementById('startRecord');
 const stopRecordBtn = document.getElementById('stopRecord');
 const uploadRecordBtn = document.getElementById('uploadRecord');
 const audioPlayback = document.getElementById('audioPlayback');
-const fileList = document.getElementById('fileList');
 
 let mediaRecorder;
 let audioChunks = [];
 let audioBlob;
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', () => {
-    loadUploadedFiles();
-    loadLanguages();
-});
-
 // Fetch list of uploaded files from API
 async function loadUploadedFiles() {
-    const response = await fetch('/api/files');
-    const files = await response.json();
+    try {
+        const response = await fetch('/api/files');  // Adjust the endpoint to your actual API route
+        if (!response.ok) {
+            throw new Error('Failed to fetch files');
+        }
 
-    fileList.innerHTML = 'Loading list of files...'; // Clear file list
-    alert('Loading list of files...')
+        const files = await response.json();  // Parse the JSON response
+        uploadedFiles = files;  // Store the files into the local array
+
+        // Now you can do anything with the uploadedFiles array, like displaying it
+        displayFiles(uploadedFiles);
+    } catch (error) {
+        console.error('Error fetching the files:', error);
+    }
+}
+
+function displayFiles(files) {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = 'Loading files...';  // Clear any existing list
 
     files.forEach(file => {
         const listItem = document.createElement('div');
@@ -29,19 +38,8 @@ async function loadUploadedFiles() {
         audioElement.src = file;
 
         const fileName = file.substring(file.lastIndexOf('/') + 1);
-
-        const convertForm = document.createElement('form');
-        convertForm.innerHTML = `
-            <input type="hidden" name="filename" value="${file}">
-            <label for="language">Language:</label>
-            <select id="languageSelect-${fileName}" required></select>
-            <button type="button" onclick="convertSpeechToText('${fileName}')">Convert to Text</button>
-        `;
-        listItem.append(audioElement, fileName, convertForm);
+        listItem.append(audioElement, document.createTextNode(fileName));
         fileList.appendChild(listItem);
-
-        // Populate languages for each file form
-        populateLanguageSelect(`languageSelect-${fileName}`);
     });
 }
 
@@ -179,3 +177,9 @@ async function convertSpeechToText(fileName) {
     const result = await response.json();
     alert(result.message);
 }
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+    loadUploadedFiles();
+    loadLanguages();
+});
