@@ -64,6 +64,10 @@ def list_languages():
     languages = unique_languages_from_voices(response.voices)
     return languages
 
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('index.html')
+
 # REST methods below
 @app.route('/api/text-to-speech', methods=['GET'])
 def get_uploaded_files():
