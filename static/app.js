@@ -30,7 +30,7 @@ async function loadUploadedFiles() {
 
 function displayFiles() {
     const fileList = document.getElementById('fileList');
-    fileList.innerHTML = 'uploadedFiles.toString()';  // Clear any existing list
+    fileList.innerHTML = uploadedFiles.toString();  // Clear any existing list
 
     uploadedFiles.forEach(file => {
         const listItem = document.createElement('div');
