@@ -30,9 +30,8 @@ async function loadUploadedFiles() {
 
 function displayFiles() {
     const fileList = document.getElementById('fileList');
-    fileList.innerHTML = 'Loading files...';  // Clear any existing list
+    fileList.innerHTML = 'uploadedFiles.toString()';  // Clear any existing list
 
-    alert('Uploaded files = ' + uploadedFiles)
     uploadedFiles.forEach(file => {
         const listItem = document.createElement('div');
         const audioElement = document.createElement('audio');
