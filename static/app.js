@@ -19,7 +19,7 @@ async function loadUploadedFiles() {
     const response = await fetch('/api/files');
     const files = await response.json();
 
-    fileList.innerHTML = ''; // Clear file list
+    fileList.innerHTML = 'Loading list of files...'; // Clear file list
 
     files.forEach(file => {
         const listItem = document.createElement('div');
