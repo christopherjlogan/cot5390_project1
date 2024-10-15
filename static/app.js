@@ -18,6 +18,7 @@ async function loadUploadedFiles() {
         }
 
         const files = await response.json();  // Parse the JSON response
+        alert('files = ' + files)
         uploadedFiles = files;  // Store the files into the local array
 
         // Now you can do anything with the uploadedFiles array, like displaying it
@@ -27,11 +28,12 @@ async function loadUploadedFiles() {
     }
 }
 
-function displayFiles(files) {
+function displayFiles() {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = 'Loading files...';  // Clear any existing list
 
-    files.forEach(file => {
+    alert('Uploaded files = ' + uploadedFiles)
+    uploadedFiles.forEach(file => {
         const listItem = document.createElement('div');
         const audioElement = document.createElement('audio');
         audioElement.controls = true;
