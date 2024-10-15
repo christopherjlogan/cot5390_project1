@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recording and Transcription - SPA</title>
+</head>
+<body>
+    <h1>COT5390 Project 2 - Chris Logan</h1>
+    <h2>Upload an Audio File, Record Audio, and Bi-Directional Text/Speech Conversion</h2>
+
+    <!-- Audio file upload form -->
+    <input type="file" id="audioFileInput" accept=".mp3, .wav, .ogg, .m4a">
+    <button id="uploadFileBtn">Upload</button>
+
+    <h2>Record Audio</h2>
+
+    <!-- Audio recorder interface -->
+    <button id="startRecord">Start Recording</button>
+    <button id="stopRecord" disabled>Stop Recording</button>
+    <audio id="audioPlayback" controls></audio>
+    <br>
+    <button id="uploadRecord" disabled>Upload Recording</button>
+
+    <h2>Convert Text to Speech</h2>
+    <label for="language">Choose a language:</label>
+    <select id="languageSelect" required></select>
+
+    <label for="gender">Choose a gender:</label>
+    <select id="genderSelect" required>
+        <option value="MALE">Male</option>
+        <option value="FEMALE">Female</option>
+    </select>
+    <br>
+    <textarea id="textToSpeechInput" rows="5" cols="40" placeholder="Enter text here" required></textarea>
+    <br>
+    <button id="textToSpeechBtn">Convert to Speech</button>
+
+    <h2>Uploaded Audio Files</h2>
+    <div id="fileList"></div>
+
+    <!-- Link to the external JavaScript file -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,533 @@
+Index: app.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import os\nimport io\nfrom flask import Flask, render_template, request, redirect, url_for, send_from_directory, session\nfrom werkzeug.utils import secure_filename\nfrom datetime import datetime\nfrom typing import Sequence\nfrom google.oauth2 import service_account\nfrom google.cloud import storage, speech, texttospeech\n\n# Create a Flask app\napp = Flask(__name__)\napp.secret_key = 'COT5930'\n\nSERVICE_ACCOUNT_FILE = \"credentials/service-account.json\"\n# Check if the service account file exists\nif os.path.exists(SERVICE_ACCOUNT_FILE):\n    RUN_LOCALLY = True\n    print(\"Service account file found, loading credentials...\")\n    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)\n    ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)\n    sttclient = speech.SpeechClient(credentials=credentials)\n    gcsclient = storage.Client(credentials=credentials)\nelse:\n    RUN_LOCALLY = False\n    print(\"No service account file found, using Application Default Credentials (ADC)...\")\n    # Use Application Default Credentials (ADC)\n    ttsclient = texttospeech.TextToSpeechClient()\n    sttclient = speech.SpeechClient()\n    gcsclient = storage.Client()\n\nBUCKET_NAME = 'cot5390project1.appspot.com'\nALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg', 'm4a'}\n\n# Function to check if file extension is allowed\ndef allowed_file(filename):\n    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS\n\ndef get_uploaded_files():\n    bucket = gcsclient.get_bucket(BUCKET_NAME)  # Get the bucket\n    blobs = bucket.list_blobs()  # List files with the folder path prefix\n\n    files = []\n    for blob in blobs:\n        # Exclude the folder itself from the list, only add files\n        if not blob.name.endswith(\"/\"):\n            files.append(blob.public_url)\n    return files\n\ndef upload_to_cloud_storage(audio_content, filename):\n    bucket = gcsclient.bucket(BUCKET_NAME)\n    blob = bucket.blob(filename)\n    blob.upload_from_string(audio_content)\n    return blob.public_url\n\ndef unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):\n    language_list = []\n    for voice in voices:\n        for language_code in voice.language_codes:\n            if language_code not in language_list:  # Check for uniqueness\n                language_list.append(language_code)\n    return language_list\n\ndef list_languages():\n    response = ttsclient.list_voices()\n    languages = unique_languages_from_voices(response.voices)\n    return languages\n\n# Route to display the HTML page with audio files\n@app.route('/')\ndef index():\n    # Get the list of uploaded audio files\n    files = get_uploaded_files()\n    languages = list_languages()\n    transcript = session.pop('transcript', '')\n    return render_template('index.html', files=files, languages=languages, transcript=transcript)\n\n# Route to handle file uploads\n@app.route('/upload', methods=['POST'])\ndef upload_file():\n    if 'file' not in request.files:\n        return redirect(request.url)\n\n    file = request.files['file']\n    if file and allowed_file(file.filename):\n        # Use a timestamp-based filename\n        #timestamp = datetime.now().strftime(\"%Y%m%dT%H%M%S\")\n        #ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension\n        #filename = f\"recording_{timestamp}.{ext}\"\n        filename = secure_filename(file.filename)  # Secure the filename\n\n        public_url = upload_to_cloud_storage(file.read(), filename)\n\n    return redirect(url_for('index'))\n\n@app.route('/text-to-speech', methods=['POST'])\ndef text_to_speech():\n    text_input = request.form['text']\n    selected_language = request.form['language']\n    selected_gender = request.form['gender']\n\n    synthesis_input = texttospeech.SynthesisInput(text=text_input)\n\n    # Set the voice parameters, using the selected language\n    voice = texttospeech.VoiceSelectionParams(\n        language_code=selected_language,\n        ssml_gender=selected_gender\n    )\n\n    # Select the audio format\n    audio_config = texttospeech.AudioConfig(\n        audio_encoding=texttospeech.AudioEncoding.MP3\n    )\n\n    # Perform the text-to-speech request\n    response = ttsclient.synthesize_speech(\n        input=synthesis_input, voice=voice, audio_config=audio_config\n    )\n\n    # Save the audio file\n    timestamp = datetime.now().strftime(\"%Y%m%dT%H%M%S\")\n    filename = f\"tts_{timestamp}_{selected_language}_{selected_gender}.mp3\"\n    upload_to_cloud_storage(response.audio_content, filename)\n\n    return redirect(url_for('index'))\n\ndef download_blob_as_bytes(bucket_name, blob_name):\n    print(\"Downloading blob\", blob_name, \"from bucket\", bucket_name)\n    bucket = gcsclient.get_bucket(bucket_name)\n    blob = bucket.blob(blob_name)\n    bytes = blob.download_as_bytes()\n    return bytes\n\n@app.route('/speech-to-text', methods=['POST'])\ndef speech_to_text():\n    filename = request.form['filename']\n    language = request.form['language']\n    print(\"Converting\", filename, \"to\", language)\n    audio_content = download_blob_as_bytes(BUCKET_NAME, filename[filename.rindex('/') + 1:])\n    audio = speech.RecognitionAudio(content=audio_content)\n    config = speech.RecognitionConfig(\n        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)\n        sample_rate_hertz=16000,  # Adjust if necessary\n        language_code=language\n    )\n\n    # Perform speech recognition\n    response = sttclient.recognize(config=config, audio=audio)\n\n    # Extract the transcribed text\n    transcript = \"\"\n    for result in response.results:\n        transcript += result.alternatives[0].transcript\n    print(f\"Transcribed text for {filename}: {transcript}\")\n\n    session['transcript'] = transcript  # Store transcript in session\n    return redirect(url_for('index'))\n\n# Route to serve uploaded files dynamically\n@app.route('/uploads/<filename>')\ndef uploaded_file(filename):\n    return send_from_directory(filename)\n\n\nif __name__ == '__main__':\n    app.run(debug=True)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app.py b/app.py
+--- a/app.py	(revision d141fc69711c4c4664905a956de681b7f26b2472)
++++ b/app.py	(date 1728952782422)
+@@ -1,6 +1,5 @@
+ import os
+-import io
+-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
++from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, jsonify, request
+ from werkzeug.utils import secure_filename
+ from datetime import datetime
+ from typing import Sequence
+@@ -65,101 +64,38 @@
+     languages = unique_languages_from_voices(response.voices)
+     return languages
+ 
+-# Route to display the HTML page with audio files
+-@app.route('/')
+-def index():
+-    # Get the list of uploaded audio files
+-    files = get_uploaded_files()
+-    languages = list_languages()
+-    transcript = session.pop('transcript', '')
+-    return render_template('index.html', files=files, languages=languages, transcript=transcript)
++# REST methods below
++@app.route('/api/text-to-speech', methods=['GET'])
++def get_uploaded_files():
++    return jsonify({'message': 'List of uploaded files.'})
+ 
+-# Route to handle file uploads
+-@app.route('/upload', methods=['POST'])
+-def upload_file():
++@app.route('/api/upload', methods=['POST'])
++def upload_audio():
+     if 'file' not in request.files:
+-        return redirect(request.url)
++        return jsonify({'error': 'No file uploaded'}), 400
+ 
+     file = request.files['file']
+     if file and allowed_file(file.filename):
+-        # Use a timestamp-based filename
+-        #timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+-        #ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
+-        #filename = f"recording_{timestamp}.{ext}"
+-        filename = secure_filename(file.filename)  # Secure the filename
+-
+-        public_url = upload_to_cloud_storage(file.read(), filename)
++        filename = secure_filename(file.filename)
++        # Perform GCS file upload here or save locally
++        return jsonify({'message': 'File uploaded successfully', 'filename': filename})
++    return jsonify({'error': 'File not allowed'}), 400
+ 
+-    return redirect(url_for('index'))
+-
+-@app.route('/text-to-speech', methods=['POST'])
++@app.route('/api/text-to-speech', methods=['POST'])
+ def text_to_speech():
+-    text_input = request.form['text']
+-    selected_language = request.form['language']
+-    selected_gender = request.form['gender']
+-
+-    synthesis_input = texttospeech.SynthesisInput(text=text_input)
+-
+-    # Set the voice parameters, using the selected language
+-    voice = texttospeech.VoiceSelectionParams(
+-        language_code=selected_language,
+-        ssml_gender=selected_gender
+-    )
+-
+-    # Select the audio format
+-    audio_config = texttospeech.AudioConfig(
+-        audio_encoding=texttospeech.AudioEncoding.MP3
+-    )
++    data = request.get_json()
++    text = data.get('text')
++    language = data.get('language')
++    gender = data.get('gender')
++    # Generate speech with the TTS client
++    return jsonify({'message': 'Text converted to speech successfully'})
+ 
+-    # Perform the text-to-speech request
+-    response = ttsclient.synthesize_speech(
+-        input=synthesis_input, voice=voice, audio_config=audio_config
+-    )
+-
+-    # Save the audio file
+-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+-    filename = f"tts_{timestamp}_{selected_language}_{selected_gender}.mp3"
+-    upload_to_cloud_storage(response.audio_content, filename)
+-
+-    return redirect(url_for('index'))
+-
+-def download_blob_as_bytes(bucket_name, blob_name):
+-    print("Downloading blob", blob_name, "from bucket", bucket_name)
+-    bucket = gcsclient.get_bucket(bucket_name)
+-    blob = bucket.blob(blob_name)
+-    bytes = blob.download_as_bytes()
+-    return bytes
+-
+-@app.route('/speech-to-text', methods=['POST'])
++@app.route('/api/speech-to-text', methods=['POST'])
+ def speech_to_text():
+-    filename = request.form['filename']
+-    language = request.form['language']
+-    print("Converting", filename, "to", language)
+-    audio_content = download_blob_as_bytes(BUCKET_NAME, filename[filename.rindex('/') + 1:])
+-    audio = speech.RecognitionAudio(content=audio_content)
+-    config = speech.RecognitionConfig(
+-        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
+-        sample_rate_hertz=16000,  # Adjust if necessary
+-        language_code=language
+-    )
+-
+-    # Perform speech recognition
+-    response = sttclient.recognize(config=config, audio=audio)
+-
+-    # Extract the transcribed text
+-    transcript = ""
+-    for result in response.results:
+-        transcript += result.alternatives[0].transcript
+-    print(f"Transcribed text for {filename}: {transcript}")
+-
+-    session['transcript'] = transcript  # Store transcript in session
+-    return redirect(url_for('index'))
+-
+-# Route to serve uploaded files dynamically
+-@app.route('/uploads/<filename>')
+-def uploaded_file(filename):
+-    return send_from_directory(filename)
+-
++    data = request.get_json()
++    filename = data.get('filename')
++    # Process the file with STT client
++    return jsonify({'message': 'Speech converted to text successfully'})
+ 
+ if __name__ == '__main__':
+     app.run(debug=True)
+Index: templates/index.html
+===================================================================
+diff --git a/templates/index.html b/templates/index.html
+deleted file mode 100644
+--- a/templates/index.html	(revision d141fc69711c4c4664905a956de681b7f26b2472)
++++ /dev/null	(revision d141fc69711c4c4664905a956de681b7f26b2472)
+@@ -1,136 +0,0 @@
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-    <meta charset="UTF-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>Audio Recording and Transcription</title>
+-</head>
+-<body>
+-    <h1>COT5390 Project 1 - Chris Logan</h1>
+-    <h2>Upload an Audio File, Record Audio, and Bi-Directional Text/Speech Conversion</h2>
+-
+-    <!-- Audio file upload form -->
+-    <form action="/upload" method="POST" enctype="multipart/form-data">
+-        <input type="file" name="file" accept=".mp3, .wav, .ogg, .m4a" required>
+-        <button type="submit">Upload</button>
+-    </form>
+-
+-    <h2>Record Audio</h2>
+-
+-    <!-- Audio recorder interface -->
+-    <button id="startRecord">Start Recording</button>
+-    <button id="stopRecord" disabled>Stop Recording</button>
+-    <audio id="audioPlayback" controls></audio>
+-    <br>
+-    <button id="uploadRecord" disabled>Upload Recording</button>
+-
+-    <h2>Convert Text to Speech</h2>
+-    <form action="/text-to-speech" method="POST">
+-        <label for="language">Choose a language:</label>
+-        <select name="language" id="language" required>
+-            {% for language in languages %}
+-                <option value="{{ language }}">{{ language }}</option>
+-            {% endfor %}
+-        </select>
+-        <label for="gender">Choose a gender:</label>
+-        <select name="gender" id="gender" required>
+-            <option value="MALE">Male</option>
+-            <option value="FEMALE">Female</option>
+-        </select>
+-        <br>
+-        <textarea name="text" rows="5" cols="40" placeholder="Enter text here" required></textarea>
+-        <br>
+-        <button type="submit">Convert to Speech</button>
+-    </form>
+-
+-    <h2>Uploaded Audio Files</h2>
+-    {% if transcript %}
+-        <h3>Selected Speech to Text Transcription:</h3>{{ transcript }}
+-    {% endif %}
+-    <ul>
+-        {% for file in files %}
+-        <li>
+-            <audio controls>
+-                <source src="{{  file }}" type="audio/mpeg">
+-                Your browser does not support the audio element.
+-            </audio>
+-            {{ file[file.rindex('/') + 1:] }}
+-             <form action="/speech-to-text" method="POST" style="display:inline;">
+-                <input type="hidden" name="filename" value="{{ file }}">
+-                <label for="language">:</label>
+-                <select name="language" id="language" required>
+-                    {% for language in languages %}
+-                        <option value="{{ language }}">{{ language }}</option>
+-                    {% endfor %}
+-                </select>
+-                <button type="submit">Convert to Text</button>
+-            </form>
+-        </li>
+-        {% endfor %}
+-    </ul>
+-
+-    <script>
+-        let mediaRecorder;
+-        let audioChunks = [];
+-        let audioBlob;
+-
+-        const startRecordBtn = document.getElementById('startRecord');
+-        const stopRecordBtn = document.getElementById('stopRecord');
+-        const uploadRecordBtn = document.getElementById('uploadRecord');
+-        const audioPlayback = document.getElementById('audioPlayback');
+-
+-        startRecordBtn.addEventListener('click', async () => {
+-            // Start audio recording
+-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+-            mediaRecorder = new MediaRecorder(stream);
+-            mediaRecorder.start();
+-
+-            mediaRecorder.ondataavailable = (event) => {
+-                audioChunks.push(event.data);
+-            };
+-
+-            mediaRecorder.onstop = () => {
+-                audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+-                audioChunks = [];
+-                const audioURL = URL.createObjectURL(audioBlob);
+-                audioPlayback.src = audioURL;
+-                uploadRecordBtn.disabled = false;
+-            };
+-
+-            startRecordBtn.disabled = true;
+-            stopRecordBtn.disabled = false;
+-        });
+-
+-        stopRecordBtn.addEventListener('click', () => {
+-            // Stop audio recording
+-            mediaRecorder.stop();
+-            startRecordBtn.disabled = false;
+-            stopRecordBtn.disabled = true;
+-        });
+-
+-        uploadRecordBtn.addEventListener('click', () => {
+-            // Create a timestamp-based filename for the recording
+-            const timestamp = new Date().toISOString().replace(/[-:.]/g, '');
+-            const filename = `recording_${timestamp}.wav`;
+-
+-            // Upload the recorded audio
+-            const formData = new FormData();
+-            formData.append('file', audioBlob, filename);
+-
+-            fetch('/upload', {
+-                method: 'POST',
+-                body: formData
+-            }).then(response => {
+-                if (response.ok) {
+-                    alert('Recording uploaded successfully');
+-                    window.location.reload();
+-                } else {
+-                    alert('Failed to upload recording');
+-                }
+-            }).catch(() => {
+-                alert('Error during upload');
+-            });
+-        });
+-    </script>
+-</body>
+-</html>
+Index: app.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app.js b/app.js
+new file mode 100644
+--- /dev/null	(date 1728952489173)
++++ b/app.js	(date 1728952489173)
+@@ -0,0 +1,180 @@
++const startRecordBtn = document.getElementById('startRecord');
++const stopRecordBtn = document.getElementById('stopRecord');
++const uploadRecordBtn = document.getElementById('uploadRecord');
++const audioPlayback = document.getElementById('audioPlayback');
++const fileList = document.getElementById('fileList');
++
++let mediaRecorder;
++let audioChunks = [];
++let audioBlob;
++
++// Initialize page
++document.addEventListener('DOMContentLoaded', () => {
++    loadUploadedFiles();
++    loadLanguages();
++});
++
++// Fetch list of uploaded files from API
++async function loadUploadedFiles() {
++    const response = await fetch('/api/files');
++    const files = await response.json();
++
++    fileList.innerHTML = ''; // Clear file list
++
++    files.forEach(file => {
++        const listItem = document.createElement('div');
++        const audioElement = document.createElement('audio');
++        audioElement.controls = true;
++        audioElement.src = file;
++
++        const fileName = file.substring(file.lastIndexOf('/') + 1);
++
++        const convertForm = document.createElement('form');
++        convertForm.innerHTML = `
++            <input type="hidden" name="filename" value="${file}">
++            <label for="language">Language:</label>
++            <select id="languageSelect-${fileName}" required></select>
++            <button type="button" onclick="convertSpeechToText('${fileName}')">Convert to Text</button>
++        `;
++        listItem.append(audioElement, fileName, convertForm);
++        fileList.appendChild(listItem);
++
++        // Populate languages for each file form
++        populateLanguageSelect(`languageSelect-${fileName}`);
++    });
++}
++
++// Populate language options from API
++async function loadLanguages() {
++    const response = await fetch('/api/languages');
++    const languages = await response.json();
++
++    const languageSelect = document.getElementById('languageSelect');
++    languages.forEach(language => {
++        const option = document.createElement('option');
++        option.value = language;
++        option.textContent = language;
++        languageSelect.appendChild(option);
++    });
++}
++
++// Populate language dropdown dynamically for uploaded files
++async function populateLanguageSelect(selectId) {
++    const response = await fetch('/api/languages');
++    const languages = await response.json();
++
++    const languageSelect = document.getElementById(selectId);
++    languages.forEach(language => {
++        const option = document.createElement('option');
++        option.value = language;
++        option.textContent = language;
++        languageSelect.appendChild(option);
++    });
++}
++
++// Start audio recording
++startRecordBtn.addEventListener('click', async () => {
++    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
++    mediaRecorder = new MediaRecorder(stream);
++    mediaRecorder.start();
++
++    mediaRecorder.ondataavailable = (event) => {
++        audioChunks.push(event.data);
++    };
++
++    mediaRecorder.onstop = () => {
++        audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
++        audioChunks = [];
++        const audioURL = URL.createObjectURL(audioBlob);
++        audioPlayback.src = audioURL;
++        uploadRecordBtn.disabled = false;
++    };
++
++    startRecordBtn.disabled = true;
++    stopRecordBtn.disabled = false;
++});
++
++// Stop audio recording
++stopRecordBtn.addEventListener('click', () => {
++    mediaRecorder.stop();
++    startRecordBtn.disabled = false;
++    stopRecordBtn.disabled = true;
++});
++
++// Upload recorded audio
++uploadRecordBtn.addEventListener('click', async () => {
++    const formData = new FormData();
++    formData.append('file', audioBlob, 'recording.wav');
++
++    const response = await fetch('/api/upload', {
++        method: 'POST',
++        body: formData
++    });
++
++    if (response.ok) {
++        alert('Recording uploaded successfully');
++        loadUploadedFiles(); // Reload file list
++    } else {
++        alert('Failed to upload recording');
++    }
++});
++
++// Upload audio file
++document.getElementById('uploadFileBtn').addEventListener('click', async () => {
++    const fileInput = document.getElementById('audioFileInput');
++    const file = fileInput.files[0];
++
++    if (!file) {
++        alert('Please select a file to upload');
++        return;
++    }
++
++    const formData = new FormData();
++    formData.append('file', file);
++
++    const response = await fetch('/api/upload', {
++        method: 'POST',
++        body: formData
++    });
++
++    if (response.ok) {
++        alert('File uploaded successfully');
++        loadUploadedFiles(); // Reload file list
++    } else {
++        alert('Failed to upload file');
++    }
++});
++
++// Convert text to speech
++document.getElementById('textToSpeechBtn').addEventListener('click', async () => {
++    const text = document.getElementById('textToSpeechInput').value;
++    const language = document.getElementById('languageSelect').value;
++    const gender = document.getElementById('genderSelect').value;
++
++    const response = await fetch('/api/text-to-speech', {
++        method: 'POST',
++        headers: {
++            'Content-Type': 'application/json',
++        },
++        body: JSON.stringify({ text, language, gender })
++    });
++
++    const result = await response.json();
++    alert(result.message);
++});
++
++// Convert uploaded audio to text
++async function convertSpeechToText(fileName) {
++    const language = document.getElementById(`languageSelect-${fileName}`).value;
++
++    const response = await fetch('/api/speech-to-text', {
++        method: 'POST',
++        headers: {
++            'Content-Type': 'application/json',
++        },
++        body: JSON.stringify({ filename: fileName, language })
++    });
++
++    const result = await response.json();
++    alert(result.message);
++}
+\ No newline at end of file
+Index: index.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/index.html b/index.html
+new file mode 100644
+--- /dev/null	(date 1728952489159)
++++ b/index.html	(date 1728952489159)
+@@ -0,0 +1,45 @@
++<!DOCTYPE html>
++<html lang="en">
++<head>
++    <meta charset="UTF-8">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0">
++    <title>Audio Recording and Transcription - SPA</title>
++</head>
++<body>
++    <h1>COT5390 Project 2 - Chris Logan</h1>
++    <h2>Upload an Audio File, Record Audio, and Bi-Directional Text/Speech Conversion</h2>
++
++    <!-- Audio file upload form -->
++    <input type="file" id="audioFileInput" accept=".mp3, .wav, .ogg, .m4a">
++    <button id="uploadFileBtn">Upload</button>
++
++    <h2>Record Audio</h2>
++
++    <!-- Audio recorder interface -->
++    <button id="startRecord">Start Recording</button>
++    <button id="stopRecord" disabled>Stop Recording</button>
++    <audio id="audioPlayback" controls></audio>
++    <br>
++    <button id="uploadRecord" disabled>Upload Recording</button>
++
++    <h2>Convert Text to Speech</h2>
++    <label for="language">Choose a language:</label>
++    <select id="languageSelect" required></select>
++
++    <label for="gender">Choose a gender:</label>
++    <select id="genderSelect" required>
++        <option value="MALE">Male</option>
++        <option value="FEMALE">Female</option>
++    </select>
++    <br>
++    <textarea id="textToSpeechInput" rows="5" cols="40" placeholder="Enter text here" required></textarea>
++    <br>
++    <button id="textToSpeechBtn">Convert to Speech</button>
++
++    <h2>Uploaded Audio Files</h2>
++    <div id="fileList"></div>
++
++    <!-- Link to the external JavaScript file -->
++    <script src="app.js"></script>
++</body>
++</html>
+\ No newline at end of file

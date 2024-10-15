@@ -1,6 +1,5 @@
 import os
-import io
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, jsonify, request
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from typing import Sequence
@@ -65,101 +64,38 @@ def list_languages():
     languages = unique_languages_from_voices(response.voices)
     return languages
 
-# Route to display the HTML page with audio files
-@app.route('/')
-def index():
-    # Get the list of uploaded audio files
-    files = get_uploaded_files()
-    languages = list_languages()
-    transcript = session.pop('transcript', '')
-    return render_template('index.html', files=files, languages=languages, transcript=transcript)
+# REST methods below
+@app.route('/api/text-to-speech', methods=['GET'])
+def get_uploaded_files():
+    return jsonify({'message': 'List of uploaded files.'})
 
-# Route to handle file uploads
-@app.route('/upload', methods=['POST'])
-def upload_file():
+@app.route('/api/upload', methods=['POST'])
+def upload_audio():
     if 'file' not in request.files:
-        return redirect(request.url)
+        return jsonify({'error': 'No file uploaded'}), 400
 
     file = request.files['file']
     if file and allowed_file(file.filename):
-        # Use a timestamp-based filename
-        #timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-        #ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
-        #filename = f"recording_{timestamp}.{ext}"
-        filename = secure_filename(file.filename)  # Secure the filename
+        filename = secure_filename(file.filename)
+        # Perform GCS file upload here or save locally
+        return jsonify({'message': 'File uploaded successfully', 'filename': filename})
+    return jsonify({'error': 'File not allowed'}), 400
 
-        public_url = upload_to_cloud_storage(file.read(), filename)
-
-    return redirect(url_for('index'))
-
-@app.route('/text-to-speech', methods=['POST'])
+@app.route('/api/text-to-speech', methods=['POST'])
 def text_to_speech():
-    text_input = request.form['text']
-    selected_language = request.form['language']
-    selected_gender = request.form['gender']
+    data = request.get_json()
+    text = data.get('text')
+    language = data.get('language')
+    gender = data.get('gender')
+    # Generate speech with the TTS client
+    return jsonify({'message': 'Text converted to speech successfully'})
 
-    synthesis_input = texttospeech.SynthesisInput(text=text_input)
-
-    # Set the voice parameters, using the selected language
-    voice = texttospeech.VoiceSelectionParams(
-        language_code=selected_language,
-        ssml_gender=selected_gender
-    )
-
-    # Select the audio format
-    audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
-    )
-
-    # Perform the text-to-speech request
-    response = ttsclient.synthesize_speech(
-        input=synthesis_input, voice=voice, audio_config=audio_config
-    )
-
-    # Save the audio file
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"tts_{timestamp}_{selected_language}_{selected_gender}.mp3"
-    upload_to_cloud_storage(response.audio_content, filename)
-
-    return redirect(url_for('index'))
-
-def download_blob_as_bytes(bucket_name, blob_name):
-    print("Downloading blob", blob_name, "from bucket", bucket_name)
-    bucket = gcsclient.get_bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    bytes = blob.download_as_bytes()
-    return bytes
-
-@app.route('/speech-to-text', methods=['POST'])
+@app.route('/api/speech-to-text', methods=['POST'])
 def speech_to_text():
-    filename = request.form['filename']
-    language = request.form['language']
-    print("Converting", filename, "to", language)
-    audio_content = download_blob_as_bytes(BUCKET_NAME, filename[filename.rindex('/') + 1:])
-    audio = speech.RecognitionAudio(content=audio_content)
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
-        sample_rate_hertz=16000,  # Adjust if necessary
-        language_code=language
-    )
-
-    # Perform speech recognition
-    response = sttclient.recognize(config=config, audio=audio)
-
-    # Extract the transcribed text
-    transcript = ""
-    for result in response.results:
-        transcript += result.alternatives[0].transcript
-    print(f"Transcribed text for {filename}: {transcript}")
-
-    session['transcript'] = transcript  # Store transcript in session
-    return redirect(url_for('index'))
-
-# Route to serve uploaded files dynamically
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(filename)
-
+    data = request.get_json()
+    filename = data.get('filename')
+    # Process the file with STT client
+    return jsonify({'message': 'Speech converted to text successfully'})
 
 if __name__ == '__main__':
     app.run(debug=True)
