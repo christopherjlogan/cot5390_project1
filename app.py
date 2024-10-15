@@ -34,7 +34,7 @@ ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg', 'm4a'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def get_uploaded_files():
+def list_uploaded_files():
     bucket = gcsclient.get_bucket(BUCKET_NAME)  # Get the bucket
     blobs = bucket.list_blobs()  # List files with the folder path prefix
 
@@ -71,7 +71,7 @@ def home():
 # REST methods below
 @app.route('/api/files', methods=['GET'])
 def get_uploaded_files():
-    files = get_uploaded_files()
+    files = list_uploaded_files()
     return jsonify({'message': files})
 
 @app.route('/api/upload', methods=['POST'])
