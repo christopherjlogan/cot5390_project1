@@ -127,8 +127,34 @@ def generate_speech(text_input, selected_language, selected_gender):
 def speech_to_text():
     data = request.get_json()
     filename = data.get('filename')
-    # Process the file with STT client
+    language = data.get('language')
+    converted_text = convert_to_text(filename, language)
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    filename = f"text/tts_{timestamp}_{language}.mp3"
+    upload_to_cloud_storage(converted_text, filename)
     return jsonify({'message': 'Speech converted to text successfully'})
+
+def convert_to_text(filename, language):
+    audio_content = download_blob_as_bytes(BUCKET_NAME, filename[filename.rindex('/') + 1:])
+    audio = speech.RecognitionAudio(content=audio_content)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
+        sample_rate_hertz=16000,  # Adjust if necessary
+        language_code=language
+    )
+    response = sttclient.recognize(config=config, audio=audio)
+    transcript = ""
+    for result in response.results:
+        transcript += result.alternatives[0].transcript
+
+    return transcript
+
+def download_blob_as_bytes(bucket_name, blob_name):
+    print("Downloading blob", blob_name, "from bucket", bucket_name)
+    bucket = gcsclient.get_bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    bytes = blob.download_as_bytes()
+    return bytes
 
 if __name__ == '__main__':
     app.run(debug=True)

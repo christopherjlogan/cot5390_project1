@@ -53,7 +53,7 @@ function displayFiles(files) {
 
         // Add click event to call the conversion API
         convertIcon.onclick = () => {
-            convertAudioToText(fileName);
+            convertAudioToText(fileName, document.getElementById('languageSelect').value);
         };
 
         // Append elements to the list item
@@ -190,14 +190,14 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
 });
 
 // Function to call the API for converting audio to text
-async function convertAudioToText(fileName) {
+async function convertAudioToText(fileName, language) {
     try {
         const response = await fetch('/api/speech-to-text', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ fileName })
+            body: JSON.stringify({ fileName, language})
         });
 
         const result = await response.json();
