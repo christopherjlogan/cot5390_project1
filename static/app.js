@@ -17,7 +17,6 @@ async function loadUploadedFiles() {
             throw new Error('Failed to fetch files');
         }
         const data = JSON.parse(await response.text())
-        alert(data)
         uploadedFiles = data.message;  // Store the files into the local array
 
         // Now you can do anything with the uploadedFiles array, like displaying it
@@ -29,7 +28,7 @@ async function loadUploadedFiles() {
 
 function displayFiles() {
     const fileList = document.getElementById('fileList');
-    fileList.innerHTML = uploadedFiles;  // Clear any existing list
+    fileList.innerHTML = '';  // Clear any existing list
 
     uploadedFiles.forEach(file => {
         const listItem = document.createElement('div');
