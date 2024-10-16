@@ -16,10 +16,7 @@ async function loadUploadedFiles() {
         if (!response.ok) {
             throw new Error('Failed to fetch files');
         }
-
-        const files = await response.json();  // Parse the JSON response
-        alert('files = ' + files)
-        uploadedFiles = files;  // Store the files into the local array
+        uploadedFiles = response.message;  // Store the files into the local array
 
         // Now you can do anything with the uploadedFiles array, like displaying it
         displayFiles(uploadedFiles);
@@ -30,7 +27,7 @@ async function loadUploadedFiles() {
 
 function displayFiles() {
     const fileList = document.getElementById('fileList');
-    fileList.innerHTML = uploadedFiles.toString();  // Clear any existing list
+    fileList.innerHTML = uploadedFiles;  // Clear any existing list
 
     uploadedFiles.forEach(file => {
         const listItem = document.createElement('div');
