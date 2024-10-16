@@ -99,7 +99,8 @@ stopRecordBtn.addEventListener('click', () => {
 // Upload recorded audio
 uploadRecordBtn.addEventListener('click', async () => {
     const formData = new FormData();
-    formData.append('file', audioBlob, 'recording.wav');
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, '');  // Generate a timestamp
+    formData.append('file', audioBlob, `recording_${timestamp}.wav`);
 
     const response = await fetch('/api/upload', {
         method: 'POST',
@@ -107,7 +108,6 @@ uploadRecordBtn.addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        alert('Recording uploaded successfully');
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Failed to upload recording');

@@ -10,7 +10,7 @@ App URL: https://cot5390project1.uc.r.appspot.com/
 
 ## Required Functionality
 ### Proj 1
-1. Upload an audio file - IN PROGRESS
+1. Upload an audio file - DONE
 2. Record an audio file
 3. Generate speech audio file from user-entered text
 4. Generate and store text file from previously uploaded audio file
@@ -21,6 +21,9 @@ App URL: https://cot5390project1.uc.r.appspot.com/
 
 ### Proj 2
 1. Display the sentiment of the uploaded audio or text files (positive/neutral/negative)
+
+### Optional
+1. Add a control to delete uploaded files
 
 ## Assignment Instructions
 Build upon your knowledge from project I and make the following adjustments:
