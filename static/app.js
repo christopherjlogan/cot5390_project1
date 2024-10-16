@@ -98,6 +98,7 @@ stopRecordBtn.addEventListener('click', () => {
 
 // Upload recorded audio
 uploadRecordBtn.addEventListener('click', async () => {
+    showLoadingOverlay()
     const formData = new FormData();
     const timestamp = new Date().toISOString().replace(/[-:.]/g, '');  // Generate a timestamp
     formData.append('file', audioBlob, `recording_${timestamp}.wav`);
@@ -112,10 +113,12 @@ uploadRecordBtn.addEventListener('click', async () => {
     } else {
         alert('Failed to upload recording');
     }
+    hideLoadingOverlay()
 });
 
 // Upload audio file
 document.getElementById('uploadFileBtn').addEventListener('click', async () => {
+    showLoadingOverlay()
     const fileInput = document.getElementById('audioFileInput');
     const file = fileInput.files[0];
 
@@ -134,10 +137,11 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
 
     if (response.ok) {
         alert('File uploaded successfully');
-        loadUploadedFiles(); // Reload file list
+        await loadUploadedFiles(); // Reload file list
     } else {
         alert('Failed to upload file');
     }
+    hideLoadingOverlay()
 });
 
 // Convert text to speech
@@ -172,6 +176,16 @@ async function convertSpeechToText(fileName) {
 
     const result = await response.json();
     alert(result.message);
+}
+
+// Show the overlay
+function showLoadingOverlay() {
+    document.getElementById('overlay').style.display = 'flex';
+}
+
+// Hide the overlay
+function hideLoadingOverlay() {
+    document.getElementById('overlay').style.display = 'none';
 }
 
 // Initialize page
