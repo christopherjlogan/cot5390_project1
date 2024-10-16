@@ -25,18 +25,39 @@ async function loadUploadedFiles() {
     }
 }
 
-function displayFiles() {
+function displayFiles(files) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';  // Clear any existing list
 
-    uploadedFiles.forEach(file => {
+    files.forEach(file => {
         const listItem = document.createElement('div');
+        listItem.style.display = 'flex';
+        listItem.style.alignItems = 'center';
+        listItem.style.marginBottom = '10px';
+
+        // Create and configure the audio element
         const audioElement = document.createElement('audio');
         audioElement.controls = true;
         audioElement.src = file;
 
+        // Extract the file name from the file URL
         const fileName = file.substring(file.lastIndexOf('/') + 1);
-        listItem.append(audioElement, document.createTextNode(fileName));
+
+        // Create the image that triggers the conversion API
+        const convertIcon = document.createElement('img');
+        convertIcon.src = '/static/images/convert-icon.png';  // Replace with the actual path to your icon
+        convertIcon.alt = 'Convert to Text';
+        convertIcon.style.cursor = 'pointer';
+        convertIcon.style.width = '30px';  // Adjust the size as needed
+        convertIcon.style.marginLeft = '10px';
+
+        // Add click event to call the conversion API
+        convertIcon.onclick = () => {
+            convertAudioToText(fileName);
+        };
+
+        // Append elements to the list item
+        listItem.append(audioElement, document.createTextNode(fileName), convertIcon);
         fileList.appendChild(listItem);
     });
 }
@@ -136,6 +157,7 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
     });
 
     if (response.ok) {
+        document.getElementById('audioFileInput').value = ''
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed');
@@ -167,20 +189,27 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
     hideLoadingOverlay()
 });
 
-// Convert uploaded audio to text
-async function convertSpeechToText(fileName) {
-    const language = document.getElementById(`languageSelect-${fileName}`).value;
+// Function to call the API for converting audio to text
+async function convertAudioToText(fileName) {
+    try {
+        const response = await fetch('/api/speech-to-text', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fileName })
+        });
 
-    const response = await fetch('/api/speech-to-text', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filename: fileName, language })
-    });
-
-    const result = await response.json();
-    alert(result.message);
+        const result = await response.json();
+        if (response.ok) {
+            alert(`Conversion successful: ${result.message}`);
+        } else {
+            alert(`Failed to convert: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Error converting audio to text:', error);
+        alert('An error occurred during conversion.');
+    }
 }
 
 // Show the overlay

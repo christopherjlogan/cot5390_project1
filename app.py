@@ -45,10 +45,10 @@ def list_uploaded_files():
             files.append(blob.public_url)
     return files
 
-def upload_to_cloud_storage(audio_content, filename):
+def upload_to_cloud_storage(file_content, filename):
     bucket = gcsclient.bucket(BUCKET_NAME)
     blob = bucket.blob(filename)
-    blob.upload_from_string(audio_content)
+    blob.upload_from_string(file_content)
     return blob.public_url
 
 def unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):
@@ -85,7 +85,7 @@ def upload_audio():
 
     file = request.files['file']
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        filename = "speech/" + secure_filename(file.filename)
         upload_to_cloud_storage(file.read(), filename)
         return jsonify({'message': 'File uploaded successfully', 'filename': filename})
     return jsonify({'error': 'File not allowed'}), 400
@@ -99,7 +99,7 @@ def text_to_speech():
     response = generate_speech(text, language, gender)
     # Save the audio file
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"tts_{timestamp}_{language}_{gender}.mp3"
+    filename = f"speech/tts_{timestamp}_{language}_{gender}.mp3"
     upload_to_cloud_storage(response.audio_content, filename)
     return jsonify({'message': 'Text converted to speech successfully'})
 
