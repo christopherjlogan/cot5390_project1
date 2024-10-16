@@ -45,8 +45,8 @@ function displayFiles(files) {
 
         // Create the image that triggers the conversion API
         const convertIcon = document.createElement('img');
-        convertIcon.src = '/static/images/convert-icon.png';  // Replace with the actual path to your icon
-        convertIcon.alt = 'Convert to Text';
+        convertIcon.src = '/static/img/speech-to-text.png';  // Replace with the actual path to your icon
+        convertIcon.alt = 'Convert to text';
         convertIcon.style.cursor = 'pointer';
         convertIcon.style.width = '30px';  // Adjust the size as needed
         convertIcon.style.marginLeft = '10px';
