@@ -130,7 +130,7 @@ def speech_to_text():
     language = data.get('language')
     converted_text = convert_to_text(filename, language)
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"text/tts_{timestamp}_{language}.mp3"
+    filename = f"text/tts_{timestamp}_{language}.txt"
     upload_to_cloud_storage(converted_text, filename)
     return jsonify({'message': 'Speech converted to text successfully'})
 
@@ -146,7 +146,6 @@ def convert_to_text(filename, language):
     transcript = ""
     for result in response.results:
         transcript += result.alternatives[0].transcript
-
     return transcript
 
 def download_blob_as_bytes(bucket_name, blob_name):
