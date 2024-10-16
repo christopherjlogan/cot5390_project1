@@ -74,6 +74,10 @@ def get_uploaded_files():
     files = list_uploaded_files()
     return jsonify({'message': files})
 
+@app.route('/api/languages', methods=['GET'])
+def get_languages():
+    return jsonify({'message': list_languages()})
+
 @app.route('/api/upload', methods=['POST'])
 def upload_audio():
     if 'file' not in request.files:

@@ -1,4 +1,5 @@
 let uploadedFiles = []
+let languages = []
 
 const startRecordBtn = document.getElementById('startRecord');
 const stopRecordBtn = document.getElementById('stopRecord');
@@ -12,14 +13,13 @@ let audioBlob;
 // Fetch list of uploaded files from API
 async function loadUploadedFiles() {
     try {
-        const response = await fetch('/api/files');  // Adjust the endpoint to your actual API route
+        const response = await fetch('/api/files');
         if (!response.ok) {
             throw new Error('Failed to fetch files');
         }
         const data = JSON.parse(await response.text())
         uploadedFiles = data.message;  // Store the files into the local array
 
-        // Now you can do anything with the uploadedFiles array, like displaying it
         displayFiles(uploadedFiles);
     } catch (error) {
         console.error('Error fetching the files:', error);
@@ -44,23 +44,21 @@ function displayFiles() {
 
 // Populate language options from API
 async function loadLanguages() {
-    const response = await fetch('/api/languages');
-    const languages = await response.json();
-
-    const languageSelect = document.getElementById('languageSelect');
-    languages.forEach(language => {
-        const option = document.createElement('option');
-        option.value = language;
-        option.textContent = language;
-        languageSelect.appendChild(option);
-    });
+    try {
+        const response = await fetch('/api/languages');
+        if (!response.ok) {
+            throw new Error('Failed to fetch files');
+        }
+        const data = JSON.parse(await response.text())
+        languages = data.message;  // Store the files into the local array
+        await populateLanguageSelect(languages);
+    } catch (error) {
+        console.error('Error fetching the files:', error);
+    }
 }
 
 // Populate language dropdown dynamically for uploaded files
 async function populateLanguageSelect(selectId) {
-    const response = await fetch('/api/languages');
-    const languages = await response.json();
-
     const languageSelect = document.getElementById(selectId);
     languages.forEach(language => {
         const option = document.createElement('option');
