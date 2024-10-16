@@ -5,7 +5,6 @@ const startRecordBtn = document.getElementById('startRecord');
 const stopRecordBtn = document.getElementById('stopRecord');
 const uploadRecordBtn = document.getElementById('uploadRecord');
 const audioPlayback = document.getElementById('audioPlayback');
-
 let mediaRecorder;
 let audioChunks = [];
 let audioBlob;
@@ -64,7 +63,6 @@ function populateLanguageSelect(languages) {
         const option = document.createElement('option');
         option.value = language;
         option.textContent = language;
-        console.log(option)
         languageSelect.appendChild(option)
     });
 }
@@ -110,7 +108,7 @@ uploadRecordBtn.addEventListener('click', async () => {
 
     if (response.ok) {
         alert('Recording uploaded successfully');
-        loadUploadedFiles(); // Reload file list
+        await loadUploadedFiles(); // Reload file list
     } else {
         alert('Failed to upload recording');
     }

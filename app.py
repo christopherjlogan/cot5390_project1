@@ -86,7 +86,7 @@ def upload_audio():
     file = request.files['file']
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        # Perform GCS file upload here or save locally
+        upload_to_cloud_storage(file.read(), filename)
         return jsonify({'message': 'File uploaded successfully', 'filename': filename})
     return jsonify({'error': 'File not allowed'}), 400
 

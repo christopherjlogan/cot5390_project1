@@ -10,13 +10,15 @@ App URL: https://cot5390project1.uc.r.appspot.com/
 
 ## Required Functionality
 ### Proj 1
-1. Upload an audio file
+1. Upload an audio file - IN PROGRESS
 2. Record an audio file
 3. Generate speech audio file from user-entered text
 4. Generate and store text file from previously uploaded audio file
 5. Display list of uploaded files - DONE
-6. Allow supported languages to be selected when doing transcription - IN PROGRESS
-6. Play audio files from the list
+6. Allow supported languages to be selected when doing transcription - DONE
+7. Play audio files from the list - DONE
+8. Display text files from the list
+
 ### Proj 2
 1. Display the sentiment of the uploaded audio or text files (positive/neutral/negative)
 
