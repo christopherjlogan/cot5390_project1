@@ -57,9 +57,9 @@ async function loadLanguages() {
     }
 }
 
-// Populate language dropdown dynamically for uploaded files
-async function populateLanguageSelect(selectId) {
-    const languageSelect = document.getElementById(selectId);
+// Populate language dropdown dynamically for supported languages
+function populateLanguageSelect(languages) {
+    const languageSelect = document.getElementById('languageSelect');
     languages.forEach(language => {
         const option = document.createElement('option');
         option.value = language;

@@ -15,6 +15,7 @@ App URL: https://cot5390project1.uc.r.appspot.com/
 3. Generate speech audio file from user-entered text
 4. Generate and store text file from previously uploaded audio file
 5. Display list of uploaded files - DONE
+6. Allow supported languages to be selected when doing transcription - IN PROGRESS
 6. Play audio files from the list
 ### Proj 2
 1. Display the sentiment of the uploaded audio or text files (positive/neutral/negative)
