@@ -57,7 +57,7 @@ function displayFiles(files) {
         };
 
         // Append elements to the list item
-        listItem.append(audioElement, document.createTextNode(fileName), convertIcon);
+        listItem.append(convertIcon, audioElement, document.createTextNode(fileName));
         fileList.appendChild(listItem);
     });
 }
