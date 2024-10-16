@@ -159,6 +159,7 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
     });
 
     if (response.ok) {
+        document.getElementById('textToSpeechInput').value = ''
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed');
