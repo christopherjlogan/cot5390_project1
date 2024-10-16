@@ -16,8 +16,8 @@ async function loadUploadedFiles() {
         if (!response.ok) {
             throw new Error('Failed to fetch files');
         }
-        uploadedFiles = response.message;  // Store the files into the local array
-        alert(uploadedFiles)
+        const data = await response.json();
+        uploadedFiles = data.message;  // Store the files into the local array
 
         // Now you can do anything with the uploadedFiles array, like displaying it
         displayFiles(uploadedFiles);
