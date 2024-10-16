@@ -190,22 +190,18 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
 });
 
 // Function to call the API for converting audio to text
-async function convertAudioToText(fileName, language) {
+async function convertAudioToText(filename, language) {
+    alert("Converting file " + filename + " to " + language)
     try {
         const response = await fetch('/api/speech-to-text', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ fileName, language})
+            body: JSON.stringify({ filename, language})
         });
 
         const result = await response.json();
-        if (response.ok) {
-            alert(`Conversion successful: ${result.message}`);
-        } else {
-            alert(`Failed to convert: ${result.error}`);
-        }
     } catch (error) {
         console.error('Error converting audio to text:', error);
         alert('An error occurred during conversion.');
