@@ -135,7 +135,7 @@ def speech_to_text():
     return jsonify({'message': 'Speech converted to text successfully'})
 
 def convert_to_text(filename, language):
-    audio_content = download_blob_as_bytes(BUCKET_NAME, filename[filename.rindex('/') + 1:])
+    audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
     audio = speech.RecognitionAudio(content=audio_content)
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
