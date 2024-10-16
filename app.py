@@ -96,8 +96,32 @@ def text_to_speech():
     text = data.get('text')
     language = data.get('language')
     gender = data.get('gender')
-    # Generate speech with the TTS client
+    response = generate_speech(text, language, gender)
+    # Save the audio file
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    filename = f"tts_{timestamp}_{language}_{gender}.mp3"
+    upload_to_cloud_storage(response.audio_content, filename)
     return jsonify({'message': 'Text converted to speech successfully'})
+
+def generate_speech(text_input, selected_language, selected_gender):
+    synthesis_input = texttospeech.SynthesisInput(text=text_input)
+
+    # Set the voice parameters, using the selected language
+    voice = texttospeech.VoiceSelectionParams(
+        language_code=selected_language,
+        ssml_gender=selected_gender
+    )
+
+    # Select the audio format
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3
+    )
+
+    # Perform the text-to-speech request
+    response = ttsclient.synthesize_speech(
+        input=synthesis_input, voice=voice, audio_config=audio_config
+    )
+    return response
 
 @app.route('/api/speech-to-text', methods=['POST'])
 def speech_to_text():

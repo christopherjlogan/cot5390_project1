@@ -12,7 +12,7 @@ App URL: https://cot5390project1.uc.r.appspot.com/
 ### Proj 1
 1. Upload an audio file - DONE
 2. Record an audio file - DONE
-3. Generate speech audio file from user-entered text
+3. Generate speech audio file from user-entered text - IN PROGRESS
 4. Generate and store text file from previously uploaded audio file
 5. Display list of uploaded files - DONE
 6. Allow supported languages to be selected when doing transcription - DONE

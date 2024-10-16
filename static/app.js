@@ -111,7 +111,7 @@ uploadRecordBtn.addEventListener('click', async () => {
     if (response.ok) {
         await loadUploadedFiles(); // Reload file list
     } else {
-        alert('Failed to upload recording');
+        alert('Request failed');
     }
     hideLoadingOverlay()
 });
@@ -136,16 +136,16 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        alert('File uploaded successfully');
         await loadUploadedFiles(); // Reload file list
     } else {
-        alert('Failed to upload file');
+        alert('Request failed');
     }
     hideLoadingOverlay()
 });
 
 // Convert text to speech
 document.getElementById('textToSpeechBtn').addEventListener('click', async () => {
+    showLoadingOverlay()
     const text = document.getElementById('textToSpeechInput').value;
     const language = document.getElementById('languageSelect').value;
     const gender = document.getElementById('genderSelect').value;
@@ -158,8 +158,12 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
         body: JSON.stringify({ text, language, gender })
     });
 
-    const result = await response.json();
-    alert(result.message);
+    if (response.ok) {
+        await loadUploadedFiles(); // Reload file list
+    } else {
+        alert('Request failed');
+    }
+    hideLoadingOverlay()
 });
 
 // Convert uploaded audio to text
