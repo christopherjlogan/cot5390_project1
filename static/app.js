@@ -56,7 +56,7 @@ function displayFiles(files) {
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
         sentimentIcon.src = '/static/img/sentiment-analysis.png';  // Replace with the actual path to your icon
-        sentimentIcon.alt = 'Analyze sentiment;
+        sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
         sentimentIcon.style.marginLeft = '10px';
@@ -90,7 +90,7 @@ function displayFiles(files) {
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
         sentimentIcon.src = '/static/img/sentiment-analysis.png';  // Replace with the actual path to your icon
-        sentimentIcon.alt = 'Analyze sentiment;
+        sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
         sentimentIcon.style.marginLeft = '10px';
@@ -273,7 +273,7 @@ async function analyzeSentiment(filename, language) {
     const data = JSON.parse(await response.text())
 
     if (response.ok) {
-        let sentiment = data.sentiment;
+        sentiment = data.sentiment;
         alert(filename + " sentiment is " + sentiment);
     } else {
         alert('Request failed');
