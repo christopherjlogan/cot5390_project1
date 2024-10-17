@@ -63,9 +63,11 @@ function displayFiles(files) {
 
         // Add click event to call the conversion API
         convertIcon.onclick = () => {
-            convertAudioToText(fileName, document.getElementById('languageSelect').value);
+            convertAudioToText(fileName, document.getElementById('languageSelectForSTT').value);
         };
-
+        const anchor = document.createElement('a');
+        anchor.href = file;
+        anchor.text = fileName
         listItem.append(convertIcon, audioElement, document.createTextNode(fileName));
         fileList.appendChild(listItem);
     });
@@ -78,7 +80,7 @@ function displayFiles(files) {
 
         const textLink = document.createElement('a');
         textLink.href = file;
-        textLink.text = file;
+        textLink.text = file.substring(file.lastIndexOf('/') + 1);
 
         listItem.appendChild(textLink);
         fileList.appendChild(listItem);
@@ -108,6 +110,13 @@ function populateLanguageSelect(languages) {
         option.value = language;
         option.textContent = language;
         languageSelect.appendChild(option)
+    });
+    const languageSelectForSTT = document.getElementById('languageSelectForSTT');
+    languages.forEach(language => {
+        const option = document.createElement('option');
+        option.value = language;
+        option.textContent = language;
+        languageSelectForSTT.appendChild(option)
     });
 }
 
