@@ -38,12 +38,13 @@ function displayFiles(files) {
         }
     })
 
-    const orderedList = document.createElement('ol');
+    const table = document.createElement('table');
     imageFiles.forEach(file => {
-        const listItem = document.createElement('li');
-        listItem.style.display = 'flex';
-        listItem.style.alignItems = 'center';
-        listItem.style.marginBottom = '10px';
+        const tablerow = document.createElement('tr');
+        const tabledata = document.createElement('td');
+        tabledata.style.display = 'flex';
+        tabledata.style.alignItems = 'center';
+        tabledata.style.marginBottom = '10px';
 
         // Create and configure the audio element
         const audioElement = document.createElement('audio');
@@ -78,15 +79,17 @@ function displayFiles(files) {
         const anchor = document.createElement('a');
         anchor.href = file;
         anchor.text = fileName
-        listItem.append(sentimentIcon, convertIcon, audioElement, anchor);
-        orderedList.appendChild(listItem);
+        tabledata.append(sentimentIcon, convertIcon, audioElement, anchor);
+        tablerow.appendChild(tabledata);
+        table.appendChild(tablerow)
     });
 
     textFiles.forEach(file => {
-        const listItem = document.createElement('li');
-        listItem.style.display = 'flex';
-        listItem.style.alignItems = 'center';
-        listItem.style.marginBottom = '10px';
+        const tablerow = document.createElement('tr');
+        const tabledata = document.createElement('td');
+        tabledata.style.display = 'flex';
+        tabledata.style.alignItems = 'center';
+        tabledata.style.marginBottom = '10px';
 
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
@@ -103,10 +106,11 @@ function displayFiles(files) {
         textLink.href = file;
         textLink.text = file.substring(file.lastIndexOf('/') + 1);
 
-        listItem.append(sentimentIcon, textLink);
-        orderedList.appendChild(listItem);
+        tabledata.append(sentimentIcon, textLink);
+        tablerow.appendChild(tabledata);
+        table.appendChild(tablerow)
     })
-    fileList.appendChild(orderedList)
+    fileList.appendChild(table)
 }
 
 // Populate language options from API
