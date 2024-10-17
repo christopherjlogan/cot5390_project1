@@ -280,7 +280,7 @@ async function analyzeSentiment(filename, language) {
 
     if (response.ok) {
         sentiment = data.sentiment;
-        alert(filename + " sentiment is " + sentiment);
+        alert(filename + " sentiment is " + response);
     } else {
         alert('Request failed');
     }
