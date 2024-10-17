@@ -17,10 +17,10 @@ App URL: https://cot5390project1.uc.r.appspot.com/
 5. Display list of uploaded files - DONE
 6. Allow supported languages to be selected when doing transcription - DONE
 7. Play audio files from the list - DONE
-8. Display text files from the list
+8. Display text files from the list - DONE
 
 ### Proj 2
-1. Display the sentiment of the uploaded audio or text files (positive/neutral/negative)
+1. Display the sentiment of the uploaded audio or text files (positive/neutral/negative) - IN PROGRESS
 
 ### Optional
 1. Add a control to delete uploaded files

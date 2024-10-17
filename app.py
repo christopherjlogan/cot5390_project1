@@ -138,7 +138,7 @@ def speech_to_text():
     return jsonify({'message': 'Speech converted to text successfully'})
 
 @app.route('/api/analyze-sentiment', methods=['POST'])
-def analyze_sentiment_from_file(file_path, language):
+def analyze_sentiment_from_file():
     data = request.get_json()
     filename = data.get('filename')
     language =data.get('language')
