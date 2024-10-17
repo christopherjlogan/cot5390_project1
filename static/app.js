@@ -261,6 +261,26 @@ async function convertAudioToText(filename, language) {
     hideLoadingOverlay()
 }
 
+async function analyzeSentiment(filename, language) {
+    showLoadingOverlay()
+    const response = await fetch('/api/analyze-sentiment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filename, language})
+    });
+    const data = JSON.parse(await response.text())
+
+    if (response.ok) {
+        let sentiment = data.sentiment;
+        alert(filename + " sentiment is " + sentiment);
+    } else {
+        alert('Request failed');
+    }
+    hideLoadingOverlay()
+}
+
 // Show the overlay
 function showLoadingOverlay() {
     document.getElementById('overlay').style.display = 'flex';
