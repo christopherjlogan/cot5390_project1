@@ -38,9 +38,9 @@ function displayFiles(files) {
         }
     })
 
-    const listItem = document.createElement('ol');
+    const orderedList = document.createElement('ol');
     imageFiles.forEach(file => {
-
+        const listItem = document.createElement('li');
         listItem.style.display = 'flex';
         listItem.style.alignItems = 'center';
         listItem.style.marginBottom = '10px';
@@ -79,10 +79,11 @@ function displayFiles(files) {
         anchor.href = file;
         anchor.text = fileName
         listItem.append(sentimentIcon, convertIcon, audioElement, anchor);
-        fileList.appendChild(listItem);
+        orderedList.appendChild(listItem);
     });
 
     textFiles.forEach(file => {
+        const listItem = document.createElement('li');
         listItem.style.display = 'flex';
         listItem.style.alignItems = 'center';
         listItem.style.marginBottom = '10px';
@@ -103,8 +104,9 @@ function displayFiles(files) {
         textLink.text = file.substring(file.lastIndexOf('/') + 1);
 
         listItem.append(sentimentIcon, textLink);
-        fileList.appendChild(listItem);
+        orderedList.appendChild(listItem);
     })
+    fileList.appendChild(orderedList)
 }
 
 // Populate language options from API
