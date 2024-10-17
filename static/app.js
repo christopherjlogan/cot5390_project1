@@ -28,9 +28,19 @@ async function loadUploadedFiles() {
 function displayFiles(files) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';  // Clear any existing list
-
+    let textFiles = []
+    let imageFiles = []
     files.forEach(file => {
+        if (file.endsWith('.txt')) {
+            textFiles.push(file);
+        } else {
+            imageFiles.push(file);
+        }
+    })
+
+    imageFiles.forEach(file => {
         const listItem = document.createElement('div');
+
         listItem.style.display = 'flex';
         listItem.style.alignItems = 'center';
         listItem.style.marginBottom = '10px';
@@ -60,6 +70,21 @@ function displayFiles(files) {
         listItem.append(convertIcon, audioElement, document.createTextNode(fileName));
         fileList.appendChild(listItem);
     });
+
+    textFiles.forEach(file => {
+        const listItem = document.createElement('div');
+
+        listItem.style.display = 'flex';
+        listItem.style.alignItems = 'center';
+        listItem.style.marginBottom = '10px';
+
+        // Extract the file name from the file URL
+        const fileName = file.substring(file.lastIndexOf('/') + 1);
+        const textLink = document.createElement('a');
+        textLink.href = file;
+        textLink.text = file;
+        fileList.appendChild(listItem);
+    })
 }
 
 // Populate language options from API

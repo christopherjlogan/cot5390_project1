@@ -85,7 +85,7 @@ def upload_audio():
 
     file = request.files['file']
     if file and allowed_file(file.filename):
-        filename = "speech/" + secure_filename(file.filename)
+        filename = secure_filename(file.filename)
         upload_to_cloud_storage(file.read(), filename)
         return jsonify({'message': 'File uploaded successfully', 'filename': filename})
     return jsonify({'error': 'File not allowed'}), 400
@@ -99,7 +99,7 @@ def text_to_speech():
     response = generate_speech(text, language, gender)
     # Save the audio file
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"speech/tts_{timestamp}_{language}_{gender}.mp3"
+    filename = f"tts_{timestamp}_{language}_{gender}.mp3"
     upload_to_cloud_storage(response.audio_content, filename)
     return jsonify({'message': 'Text converted to speech successfully'})
 
@@ -130,7 +130,7 @@ def speech_to_text():
     language = data.get('language')
     converted_text = convert_to_text(filename, language)
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"text/tts_{timestamp}_{language}.txt"
+    filename = f"stt_{timestamp}_{language}.txt"
     upload_to_cloud_storage(converted_text, filename)
     return jsonify({'message': 'Speech converted to text successfully'})
 
