@@ -66,23 +66,21 @@ function displayFiles(files) {
             convertAudioToText(fileName, document.getElementById('languageSelect').value);
         };
 
-        // Append elements to the list item
         listItem.append(convertIcon, audioElement, document.createTextNode(fileName));
         fileList.appendChild(listItem);
     });
 
     textFiles.forEach(file => {
         const listItem = document.createElement('div');
-
         listItem.style.display = 'flex';
         listItem.style.alignItems = 'center';
         listItem.style.marginBottom = '10px';
 
-        // Extract the file name from the file URL
-        const fileName = file.substring(file.lastIndexOf('/') + 1);
         const textLink = document.createElement('a');
         textLink.href = file;
         textLink.text = file;
+
+        listItem.appendChild(textLink);
         fileList.appendChild(listItem);
     })
 }
