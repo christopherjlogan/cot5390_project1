@@ -1,10 +1,11 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, jsonify, request
+from google.cloud.language_v1 import LanguageServiceClient
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from typing import Sequence
 from google.oauth2 import service_account
-from google.cloud import storage, speech, texttospeech
+from google.cloud import storage, speech, texttospeech, language_v1
 
 # Create a Flask app
 app = Flask(__name__)
@@ -19,6 +20,7 @@ if os.path.exists(SERVICE_ACCOUNT_FILE):
     ttsclient = texttospeech.TextToSpeechClient(credentials=credentials)
     sttclient = speech.SpeechClient(credentials=credentials)
     gcsclient = storage.Client(credentials=credentials)
+    langclient = LanguageServiceClient(credentials=credentials)
 else:
     RUN_LOCALLY = False
     print("No service account file found, using Application Default Credentials (ADC)...")
@@ -26,6 +28,7 @@ else:
     ttsclient = texttospeech.TextToSpeechClient()
     sttclient = speech.SpeechClient()
     gcsclient = storage.Client()
+    langclient = LanguageServiceClient()
 
 BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg', 'm4a'}
@@ -134,6 +137,27 @@ def speech_to_text():
     upload_to_cloud_storage(converted_text, filename)
     return jsonify({'message': 'Speech converted to text successfully'})
 
+@app.route('/api/analyze-sentiment', methods=['POST'])
+def analyze_sentiment_from_file(file_path, language):
+    data = request.get_json()
+    filename = data.get('filename')
+    language =data.get('language')
+    # Get the file from the bucket
+    text_to_analyze = ''
+    if filename.endswith(".txt"):
+        text_to_analyze = download_blob_as_text(BUCKET_NAME, filename)
+    else:
+        # If the file is audio, convert to text first
+        text_to_analyze = convert_to_text(filename, language)
+
+    # Run through sentiment analysis
+    document = language_v1.Document(
+        content=text_to_analyze,
+        type_=language_v1.Document.Type.PLAIN_TEXT
+    )
+    sentiment = langclient.analyze_sentiment(request={'document': document}).document_sentiment
+    return jsonify({'score': sentiment.score, 'magnitude': sentiment.magnitude})
+
 def convert_to_text(filename, language):
     audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
     audio = speech.RecognitionAudio(content=audio_content)
@@ -149,10 +173,17 @@ def convert_to_text(filename, language):
     return transcript
 
 def download_blob_as_bytes(bucket_name, blob_name):
-    print("Downloading blob", blob_name, "from bucket", bucket_name)
+    print("Downloading blob as bytes", blob_name, "from bucket", bucket_name)
     bucket = gcsclient.get_bucket(bucket_name)
     blob = bucket.blob(blob_name)
     bytes = blob.download_as_bytes()
+    return bytes
+
+def download_blob_as_text(bucket_name, blob_name):
+    print("Downloading blob as text", blob_name, "from bucket", bucket_name)
+    bucket = gcsclient.get_bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    bytes = blob.download_as_text()
     return bytes
 
 if __name__ == '__main__':

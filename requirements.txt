@@ -3,5 +3,6 @@ gunicorn
 google-cloud-texttospeech
 google-cloud-speech
 google-cloud-storage
+google-cloud-language
 werkzeug~=3.0.4
 protobuf~=5.28.2

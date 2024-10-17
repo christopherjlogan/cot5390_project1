@@ -38,8 +38,8 @@ function displayFiles(files) {
         }
     })
 
+    const listItem = document.createElement('ol');
     imageFiles.forEach(file => {
-        const listItem = document.createElement('div');
 
         listItem.style.display = 'flex';
         listItem.style.alignItems = 'center';
@@ -53,36 +53,56 @@ function displayFiles(files) {
         // Extract the file name from the file URL
         const fileName = file.substring(file.lastIndexOf('/') + 1);
 
-        // Create the image that triggers the conversion API
+        // Create the image for sentiment analysis
+        const sentimentIcon = document.createElement('img');
+        sentimentIcon.src = '/static/img/sentiment-analysis.png';  // Replace with the actual path to your icon
+        sentimentIcon.alt = 'Analyze sentiment;
+        sentimentIcon.style.cursor = 'pointer';
+        sentimentIcon.style.width = '30px';  // Adjust the size as needed
+        sentimentIcon.style.marginLeft = '10px';
+        sentimentIcon.onclick = () => {
+            analyzeSentiment(fileName, document.getElementById('languageSelectForSTT').value);
+        };
+
+        // Create the image that calls the conversion API
         const convertIcon = document.createElement('img');
         convertIcon.src = '/static/img/speech-to-text.png';  // Replace with the actual path to your icon
         convertIcon.alt = 'Convert to text';
         convertIcon.style.cursor = 'pointer';
         convertIcon.style.width = '30px';  // Adjust the size as needed
         convertIcon.style.marginLeft = '10px';
-
-        // Add click event to call the conversion API
         convertIcon.onclick = () => {
             convertAudioToText(fileName, document.getElementById('languageSelectForSTT').value);
         };
+
         const anchor = document.createElement('a');
         anchor.href = file;
         anchor.text = fileName
-        listItem.append(convertIcon, audioElement, document.createTextNode(fileName));
+        listItem.append(sentimentIcon, convertIcon, audioElement, anchor);
         fileList.appendChild(listItem);
     });
 
     textFiles.forEach(file => {
-        const listItem = document.createElement('div');
         listItem.style.display = 'flex';
         listItem.style.alignItems = 'center';
         listItem.style.marginBottom = '10px';
+
+        // Create the image for sentiment analysis
+        const sentimentIcon = document.createElement('img');
+        sentimentIcon.src = '/static/img/sentiment-analysis.png';  // Replace with the actual path to your icon
+        sentimentIcon.alt = 'Analyze sentiment;
+        sentimentIcon.style.cursor = 'pointer';
+        sentimentIcon.style.width = '30px';  // Adjust the size as needed
+        sentimentIcon.style.marginLeft = '10px';
+        sentimentIcon.onclick = () => {
+            analyzeSentiment(fileName, document.getElementById('languageSelectForSTT').value);
+        };
 
         const textLink = document.createElement('a');
         textLink.href = file;
         textLink.text = file.substring(file.lastIndexOf('/') + 1);
 
-        listItem.appendChild(textLink);
+        listItem.append(sentimentIcon, textLink);
         fileList.appendChild(listItem);
     })
 }
