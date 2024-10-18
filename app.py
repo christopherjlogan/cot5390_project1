@@ -149,13 +149,13 @@ def analyze_sentiment_from_file():
     else:
         # If the file is audio, convert to text first
         text_to_analyze = convert_to_text(filename, language)
-
+    print("Analyzing sentiment for", text_to_analyze)
     # Run through sentiment analysis
     document = language_v1.Document(
         content=text_to_analyze,
         type_=language_v1.Document.Type.PLAIN_TEXT
     )
-    sentiment = langclient.analyze_sentiment(request={'document': document}).document_sentiment
+    sentiment = langclient.analyze_sentiment(document=document).document_sentiment
     return jsonify({'score': sentiment.score, 'magnitude': sentiment.magnitude})
 
 def convert_to_text(filename, language):
