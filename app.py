@@ -156,6 +156,7 @@ def analyze_sentiment_from_file():
         type_=language_v1.Document.Type.PLAIN_TEXT
     )
     sentiment = langclient.analyze_sentiment(document=document).document_sentiment
+    print("Sentiment=", text_to_analyze)
     return jsonify({'text': text_to_analyze,'score': sentiment.score, 'magnitude': sentiment.magnitude})
 
 def convert_to_text(filename, language):
