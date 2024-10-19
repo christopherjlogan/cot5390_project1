@@ -309,7 +309,7 @@ async function analyzeSentiment(filename, icon_id) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filename, language})
+        body: JSON.stringify({ filename})
     });
     const data = JSON.parse(await response.text())
 

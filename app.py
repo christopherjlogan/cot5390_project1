@@ -154,19 +154,18 @@ def delete_file():
 def analyze_sentiment_from_file():
     data = request.get_json()
     filename = data.get('filename')
-    language = data.get('language')
     # Get the file from the bucket
     text_to_analyze = ''
     if filename.endswith(".txt"):
         text_to_analyze = download_blob_as_text(BUCKET_NAME, filename)
     else:
         # If the file is audio, convert to text first
-        text_to_analyze = convert_to_text(filename, language)
+        text_to_analyze = convert_to_text(filename, "en")
     # Run through sentiment analysis
     document = language_v1.Document(
         content=text_to_analyze,
         type_=language_v1.Document.Type.PLAIN_TEXT,
-        language=language
+        language='en'
     )
     sentiment = langclient.analyze_sentiment(document=document).document_sentiment.score
     text_sentiment = evaluate_sentiment_score(sentiment)
