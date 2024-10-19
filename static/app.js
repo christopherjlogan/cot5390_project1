@@ -144,13 +144,6 @@ function populateLanguageSelect(languages) {
         option.textContent = language;
         languageSelect.appendChild(option)
     });
-    const languageSelectForSTT = document.getElementById('languageSelectForSTT');
-    languages.forEach(language => {
-        const option = document.createElement('option');
-        option.value = language;
-        option.textContent = language;
-        languageSelectForSTT.appendChild(option)
-    });
 }
 
 // Start audio recording
