@@ -152,7 +152,8 @@ def analyze_sentiment_from_file():
     # Run through sentiment analysis
     document = language_v1.Document(
         content=text_to_analyze,
-        type_=language_v1.Document.Type.PLAIN_TEXT
+        type_=language_v1.Document.Type.PLAIN_TEXT,
+        language=language
     )
     sentiment = langclient.analyze_sentiment(document=document).document_sentiment.score
     text_sentiment = evaluate_sentiment_score(sentiment)
