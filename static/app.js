@@ -49,6 +49,8 @@ function displayFiles(files) {
         tabledata.style.alignItems = 'center';
         tabledata.style.marginBottom = '10px';
 
+        image_dir = '/static/img/'
+
         // Create and configure the audio element
         const audioElement = document.createElement('audio');
         audioElement.controls = true;
@@ -59,7 +61,7 @@ function displayFiles(files) {
 
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
-        sentimentIcon.src = '/static/img/sentiment-analysis.png';  // Replace with the actual path to your icon
+        sentimentIcon.src = image_dir + 'sentiment-analysis.png';  // Replace with the actual path to your icon
         sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
@@ -71,7 +73,7 @@ function displayFiles(files) {
 
         // Create the image that calls the conversion API
         const convertIcon = document.createElement('img');
-        convertIcon.src = '/static/img/speech-to-text.png';  // Replace with the actual path to your icon
+        convertIcon.src = image_dir + 'speech-to-text.png';  // Replace with the actual path to your icon
         convertIcon.alt = 'Convert to text';
         convertIcon.style.cursor = 'pointer';
         convertIcon.style.width = '30px';  // Adjust the size as needed
@@ -96,6 +98,8 @@ function displayFiles(files) {
         tabledata.style.display = 'flex';
         tabledata.style.alignItems = 'center';
         tabledata.style.marginBottom = '10px';
+
+        image_dir = '/static/img/'
 
         const filename = file.substring(file.lastIndexOf('/') + 1);
 
