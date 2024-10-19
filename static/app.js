@@ -62,7 +62,7 @@ function displayFiles(files) {
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
         sentimentIcon.style.marginLeft = '10px';
         sentimentIcon.onclick = () => {
-            analyzeSentiment(fileName, document.getElementById('languageSelectForSTT').value);
+            analyzeSentiment(fileName);
         };
 
         // Create the image that calls the conversion API
@@ -73,7 +73,7 @@ function displayFiles(files) {
         convertIcon.style.width = '30px';  // Adjust the size as needed
         convertIcon.style.marginLeft = '10px';
         convertIcon.onclick = () => {
-            convertAudioToText(fileName, document.getElementById('languageSelectForSTT').value);
+            convertAudioToText(fileName);
         };
 
         const anchor = document.createElement('a');
@@ -91,15 +91,17 @@ function displayFiles(files) {
         tabledata.style.alignItems = 'center';
         tabledata.style.marginBottom = '10px';
 
+        image_dir = '/static/img/'
+
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
-        sentimentIcon.src = '/static/img/sentiment-analysis.png';  // Replace with the actual path to your icon
+        sentimentIcon.src = image_dir + 'sentiment-analysis.png';  // Replace with the actual path to your icon
         sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
         sentimentIcon.style.marginLeft = '10px';
         sentimentIcon.onclick = () => {
-            analyzeSentiment(fileName, document.getElementById('languageSelectForSTT').value);
+            analyzeSentiment(fileName);
         };
 
         const textLink = document.createElement('a');
@@ -267,14 +269,14 @@ async function convertAudioToText(filename, language) {
     hideLoadingOverlay()
 }
 
-async function analyzeSentiment(filename, language) {
+async function analyzeSentiment(filename) {
     showLoadingOverlay()
     const response = await fetch('/api/analyze-sentiment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filename, language})
+        body: JSON.stringify({ filename})
     });
     const data = JSON.parse(await response.text())
 
