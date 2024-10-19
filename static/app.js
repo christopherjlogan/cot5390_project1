@@ -150,6 +150,7 @@ function populateLanguageSelect(languages) {
         option.textContent = language;
         languageSelect.appendChild(option)
     });
+
     const languageSelectForSTT = document.getElementById('languageSelectForSTT');
     languages.forEach(language => {
         const option = document.createElement('option');
@@ -263,12 +264,13 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
 // Function to call the API for converting audio to text
 async function convertAudioToText(filename) {
     showLoadingOverlay()
+    let language = document.getElementById('languageSelectForSTT').value
     const response = await fetch('/api/speech-to-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filename, languageSelectForSTT})
+        body: JSON.stringify({ filename, language})
     });
     const result = await response.json();
 
