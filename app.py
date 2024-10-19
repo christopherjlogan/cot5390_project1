@@ -57,7 +57,7 @@ def upload_to_cloud_storage(file_content, filename):
 def delete_from_cloud_storage(filename):
     bucket = gcsclient.bucket(BUCKET_NAME)
     blob = bucket.blob(filename)
-    bucket.delete_blob(blob)
+    blob.delete()
     return True
 
 def unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):
