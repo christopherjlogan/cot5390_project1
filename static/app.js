@@ -332,9 +332,8 @@ async function deleteFile(filename) {
         },
         body: JSON.stringify({ filename})
     });
-    const data = JSON.parse(await response.text())
     hideLoadingOverlay()
-
+    loadUploadedFiles()
 }
 
 // Show the overlay
