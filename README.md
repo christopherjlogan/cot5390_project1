@@ -8,23 +8,6 @@ GCP Project ID: https://console.cloud.google.com/welcome/new?project=cot5390proj
 Github Repo: https://github.com/christopherjlogan/cot5390_project1  
 App URL: https://cot5390project1.uc.r.appspot.com/  
 
-## Required Functionality
-### Proj 1
-1. Upload an audio file - DONE
-2. Record an audio file - DONE
-3. Generate speech audio file from user-entered text - DONE
-4. Generate and store text file from previously uploaded audio file - IN PROGRESS
-5. Display list of uploaded files - DONE
-6. Allow supported languages to be selected when doing transcription - DONE
-7. Play audio files from the list - DONE
-8. Display text files from the list - DONE
-
-### Proj 2
-1. Display the sentiment of the uploaded audio or text files (positive/neutral/negative) - IN PROGRESS
-
-### Optional
-1. Add a control to delete uploaded files
-
 ## Assignment Instructions
 Build upon your knowledge from project I and make the following adjustments:
 - Leverage the Language API in Google Cloud to evaluate the sentiment of the
@@ -35,7 +18,7 @@ Provide a report of your application, architecture, code and design decisions, w
 focus on what you learned.
 
 ## Introduction
-This project is a proof of concept for the uploading, recording and automated bi-directional conversion of speech and text from a web application.
+This project is a proof of concept for the uploading, recording and automated bi-directional conversion of speech and text from a web application.  On project 2, additional functionality includes sentiment analysis.
 
 ## Architecture
 ### Project Planning
