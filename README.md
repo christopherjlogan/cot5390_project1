@@ -22,6 +22,7 @@ This project is a proof of concept for the uploading, recording and automated bi
 
 ## Architecture
 ### Project Planning
+#### Project 1
 In the implementation of this project, the following steps were followed.  During each of the steps, iterative coding and test took place.
 - Researched how to build web apps in Python
 - Created and ran basic Flask app on local dev machine
@@ -39,6 +40,8 @@ In the implementation of this project, the following steps were followed.  Durin
 - Setup Google App Engine and Admin
 - Setup Google Cloud Build with Trigger on Github Repo branch push
 - Tested and troubleshooted application running on Google App Engine
+
+#### Project 2
 
 ### Solution Components
 ![Architecture Diagram](COT5390%20Project1%20Architecture.png)
