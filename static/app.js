@@ -30,6 +30,8 @@ function displayFiles(files) {
     fileList.innerHTML = '';  // Clear any existing list
     let textFiles = []
     let imageFiles = []
+    let image_dir = '/static/img/'
+
     files.forEach(file => {
         if (file.endsWith('.txt')) {
             textFiles.push(file);
@@ -48,8 +50,6 @@ function displayFiles(files) {
         tabledata.style.display = 'flex';
         tabledata.style.alignItems = 'center';
         tabledata.style.marginBottom = '10px';
-
-        image_dir = '/static/img/'
 
         // Create and configure the audio element
         const audioElement = document.createElement('audio');
@@ -98,8 +98,6 @@ function displayFiles(files) {
         tabledata.style.display = 'flex';
         tabledata.style.alignItems = 'center';
         tabledata.style.marginBottom = '10px';
-
-        image_dir = '/static/img/'
 
         const filename = file.substring(file.lastIndexOf('/') + 1);
 
