@@ -286,7 +286,9 @@ async function analyzeSentiment(filename, icon_id) {
     const data = JSON.parse(await response.text())
 
     if (response.ok) {
-        document.getElementById(icon_id).src='/static/img/' + data.sentiment + '.png'
+        sentiment = data.sentiment
+        alert('Analyzed Sentiment: ' + sentiment)
+        //document.getElementById(icon_id).src='/static/img/' + sentiment + '.png'
     } else {
         alert('Request failed');
     }
