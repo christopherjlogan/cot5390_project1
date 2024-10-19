@@ -150,6 +150,13 @@ function populateLanguageSelect(languages) {
         option.textContent = language;
         languageSelect.appendChild(option)
     });
+    const languageSelectForSTT = document.getElementById('languageSelectForSTT');
+    languages.forEach(language => {
+        const option = document.createElement('option');
+        option.value = language;
+        option.textContent = language;
+        languageSelect.appendChild(option)
+    });
 }
 
 // Start audio recording
@@ -254,14 +261,14 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
 });
 
 // Function to call the API for converting audio to text
-async function convertAudioToText(filename, language) {
+async function convertAudioToText(filename) {
     showLoadingOverlay()
     const response = await fetch('/api/speech-to-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filename, language})
+        body: JSON.stringify({ filename, languageSelectForSTT})
     });
     const result = await response.json();
 
@@ -275,12 +282,13 @@ async function convertAudioToText(filename, language) {
 
 async function analyzeSentiment(filename, icon_id) {
     showLoadingOverlay()
+    let language = document.getElementById('languageSelectForSTT').value
     const response = await fetch('/api/analyze-sentiment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filename})
+        body: JSON.stringify({ filename, language})
     });
     const data = JSON.parse(await response.text())
 

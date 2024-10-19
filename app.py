@@ -141,13 +141,14 @@ def speech_to_text():
 def analyze_sentiment_from_file():
     data = request.get_json()
     filename = data.get('filename')
+    language = data.get('language')
     # Get the file from the bucket
     text_to_analyze = ''
     if filename.endswith(".txt"):
         text_to_analyze = download_blob_as_text(BUCKET_NAME, filename)
     else:
         # If the file is audio, convert to text first
-        text_to_analyze = convert_to_text(filename)
+        text_to_analyze = convert_to_text(filename, language)
     # Run through sentiment analysis
     document = language_v1.Document(
         content=text_to_analyze,
@@ -166,13 +167,13 @@ def evaluate_sentiment_score(score):
     else:
         return "neutral"
 
-def convert_to_text(filename):
+def convert_to_text(filename, language):
     audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
     audio = speech.RecognitionAudio(content=audio_content)
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
         sample_rate_hertz=16000,
-        language_code=""
+        language_code=language
     )
     response = sttclient.recognize(config=config, audio=audio)
     transcript = ""
