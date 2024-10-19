@@ -144,7 +144,7 @@ def speech_to_text():
     return jsonify({'message': 'Speech converted to text successfully'})
 
 @app.route('/api/delete-file', methods=['POST'])
-def speech_to_text():
+def delete_file():
     data = request.get_json()
     filename = data.get('filename')
     delete_from_cloud_storage(filename)
