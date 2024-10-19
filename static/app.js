@@ -279,8 +279,8 @@ async function analyzeSentiment(filename, language) {
     const data = JSON.parse(await response.text())
 
     if (response.ok) {
-        sentiment = data.sentiment;
-        alert(filename + " sentiment is " + data.score + ", magnitude is " + data.magnitude);
+        alert(filename + " sentiment is " + data.sentiment);
+
     } else {
         alert('Request failed');
     }

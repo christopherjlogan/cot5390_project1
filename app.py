@@ -156,8 +156,15 @@ def analyze_sentiment_from_file():
         type_=language_v1.Document.Type.PLAIN_TEXT
     )
     sentiment = langclient.analyze_sentiment(document=document).document_sentiment
-    print("Sentiment=", text_to_analyze)
-    return jsonify({'text': text_to_analyze,'score': sentiment.score, 'magnitude': sentiment.magnitude})
+    return jsonify({'text': text_to_analyze,'sentiment': evaluate_sentiment_score(sentiment.score)})
+
+def evaluate_sentiment_score(score):
+    if score > 0:
+        return "positive"
+    elif score < 0:
+        return "negative"
+    else:
+        return "neutral"
 
 def convert_to_text(filename, language):
     audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
