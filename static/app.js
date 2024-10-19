@@ -39,6 +39,7 @@ function displayFiles(files) {
     })
 
     const table = document.createElement('table');
+    i=0
     imageFiles.forEach(file => {
         const tablerow = document.createElement('tr');
         const tabledata = document.createElement('td');
@@ -61,8 +62,9 @@ function displayFiles(files) {
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
         sentimentIcon.style.marginLeft = '10px';
+        sentimentIcon.id = 'sentiment-icon-' + i;
         sentimentIcon.onclick = () => {
-            analyzeSentiment(fileName);
+            analyzeSentiment(fileName, sentimentIcon.id);
         };
 
         // Create the image that calls the conversion API
@@ -82,6 +84,7 @@ function displayFiles(files) {
         tabledata.append(sentimentIcon, convertIcon, audioElement, anchor);
         tablerow.appendChild(tabledata);
         table.appendChild(tablerow)
+        i++
     });
 
     textFiles.forEach(file => {
@@ -100,8 +103,9 @@ function displayFiles(files) {
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
         sentimentIcon.style.marginLeft = '10px';
+        sentimentIcon.id = 'sentiment-icon-' + i;
         sentimentIcon.onclick = () => {
-            analyzeSentiment(fileName);
+            analyzeSentiment(fileName, sentimentIcon.id);
         };
 
         const textLink = document.createElement('a');
@@ -111,6 +115,7 @@ function displayFiles(files) {
         tabledata.append(sentimentIcon, textLink);
         tablerow.appendChild(tabledata);
         table.appendChild(tablerow)
+        i++
     })
     fileList.appendChild(table)
 }
@@ -269,7 +274,7 @@ async function convertAudioToText(filename, language) {
     hideLoadingOverlay()
 }
 
-async function analyzeSentiment(filename) {
+async function analyzeSentiment(filename, icon_id) {
     showLoadingOverlay()
     const response = await fetch('/api/analyze-sentiment', {
         method: 'POST',
@@ -281,8 +286,8 @@ async function analyzeSentiment(filename) {
     const data = JSON.parse(await response.text())
 
     if (response.ok) {
-        alert(filename + " sentiment is " + data.sentiment);
-
+        //alert(filename + " sentiment is " + data.sentiment);
+        document.getElementById(icon_id).src='/static/img/' + data.sentiment + '.png')
     } else {
         alert('Request failed');
     }
