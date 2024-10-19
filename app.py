@@ -154,7 +154,7 @@ def analyze_sentiment_from_file():
         content=text_to_analyze,
         type_=language_v1.Document.Type.PLAIN_TEXT
     )
-    sentiment = langclient.analyze_sentiment(document=document).document_sentiment
+    sentiment = langclient.analyze_sentiment(document=document).document_sentiment.score
     return jsonify({'text': text_to_analyze,'sentiment': evaluate_sentiment_score(sentiment)})
 
 def evaluate_sentiment_score(score):
