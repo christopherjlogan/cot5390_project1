@@ -59,7 +59,16 @@ function displayFiles(files) {
         // Extract the file name from the file URL
         const filename = file.substring(file.lastIndexOf('/') + 1);
 
-        // Create the image for sentiment analysis
+        const trashIcon = document.createElement('img');
+        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
+        trashIcon.alt = 'Delete file';
+        trashIcon.style.cursor = 'pointer';
+        trashIcon.style.width = '30px';  // Adjust the size as needed
+        trashIcon.style.marginLeft = '10px';
+        trashIcon.onclick = () => {
+            deleteFile(filename);
+        };
+
         const sentimentIcon = document.createElement('img');
         sentimentIcon.src = image_dir + 'sentiment-analysis.png';  // Replace with the actual path to your icon
         sentimentIcon.alt = 'Analyze sentiment';
@@ -85,7 +94,7 @@ function displayFiles(files) {
         const anchor = document.createElement('a');
         anchor.href = file;
         anchor.text = filename
-        tabledata.append(sentimentIcon, convertIcon, audioElement, anchor);
+        tabledata.append(trashIcon, sentimentIcon, convertIcon, audioElement, anchor);
         tablerow.appendChild(tabledata);
         table.appendChild(tablerow)
         i++
@@ -100,6 +109,16 @@ function displayFiles(files) {
         tabledata.style.marginBottom = '10px';
 
         const filename = file.substring(file.lastIndexOf('/') + 1);
+
+        const trashIcon = document.createElement('img');
+        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
+        trashIcon.alt = 'Delete file';
+        trashIcon.style.cursor = 'pointer';
+        trashIcon.style.width = '30px';  // Adjust the size as needed
+        trashIcon.style.marginLeft = '10px';
+        trashIcon.onclick = () => {
+            deleteFile(filename);
+        };
 
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
@@ -118,7 +137,7 @@ function displayFiles(files) {
         textLink.text = file.substring(file.lastIndexOf('/') + 1);
         textLink.target = "_new"
 
-        tabledata.append(sentimentIcon, textLink);
+        tabledata.append(trashIcon, sentimentIcon, textLink);
         tablerow.appendChild(tabledata);
         table.appendChild(tablerow)
         i++
@@ -302,6 +321,20 @@ async function analyzeSentiment(filename, icon_id) {
         alert('Request failed');
     }
     hideLoadingOverlay()
+}
+
+async function deleteFile(filename) {
+    showLoadingOverlay()
+    const response = await fetch('/api/delete-file', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filename})
+    });
+    const data = JSON.parse(await response.text())
+    hideLoadingOverlay()
+
 }
 
 // Show the overlay

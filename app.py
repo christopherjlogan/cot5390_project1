@@ -54,6 +54,12 @@ def upload_to_cloud_storage(file_content, filename):
     blob.upload_from_string(file_content)
     return blob.public_url
 
+def delete_from_cloud_storage(filename):
+    bucket = gcsclient.bucket(BUCKET_NAME)
+    blob = bucket.blob(filename)
+    bucket.delete_blob(blob)
+    return True
+
 def unique_languages_from_voices(voices: Sequence[texttospeech.Voice]):
     language_list = []
     for voice in voices:
@@ -136,6 +142,13 @@ def speech_to_text():
     filename = f"stt_{timestamp}_{language}.txt"
     upload_to_cloud_storage(converted_text, filename)
     return jsonify({'message': 'Speech converted to text successfully'})
+
+@app.route('/api/delete-file', methods=['POST'])
+def speech_to_text():
+    data = request.get_json()
+    filename = data.get('filename')
+    delete_from_cloud_storage(filename)
+    return jsonify({'message': 'File successfully deleted'})
 
 @app.route('/api/analyze-sentiment', methods=['POST'])
 def analyze_sentiment_from_file():
