@@ -40,6 +40,8 @@ function displayFiles(files) {
 
     const table = document.createElement('table');
     i=0
+
+    //Generating elements for image files
     imageFiles.forEach(file => {
         const tablerow = document.createElement('tr');
         const tabledata = document.createElement('td');
@@ -53,7 +55,7 @@ function displayFiles(files) {
         audioElement.src = file;
 
         // Extract the file name from the file URL
-        const fileName = file.substring(file.lastIndexOf('/') + 1);
+        const filename = file.substring(file.lastIndexOf('/') + 1);
 
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
@@ -64,7 +66,7 @@ function displayFiles(files) {
         sentimentIcon.style.marginLeft = '10px';
         sentimentIcon.id = 'sentiment-icon-' + i;
         sentimentIcon.onclick = () => {
-            analyzeSentiment(fileName, sentimentIcon.id);
+            analyzeSentiment(filename, sentimentIcon.id);
         };
 
         // Create the image that calls the conversion API
@@ -75,18 +77,19 @@ function displayFiles(files) {
         convertIcon.style.width = '30px';  // Adjust the size as needed
         convertIcon.style.marginLeft = '10px';
         convertIcon.onclick = () => {
-            convertAudioToText(fileName);
+            convertAudioToText(filename);
         };
 
         const anchor = document.createElement('a');
         anchor.href = file;
-        anchor.text = fileName
+        anchor.text = filename
         tabledata.append(sentimentIcon, convertIcon, audioElement, anchor);
         tablerow.appendChild(tabledata);
         table.appendChild(tablerow)
         i++
     });
 
+    //Generating elements for text files
     textFiles.forEach(file => {
         const tablerow = document.createElement('tr');
         const tabledata = document.createElement('td');
@@ -94,7 +97,7 @@ function displayFiles(files) {
         tabledata.style.alignItems = 'center';
         tabledata.style.marginBottom = '10px';
 
-        image_dir = '/static/img/'
+        const filename = file.substring(file.lastIndexOf('/') + 1);
 
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
@@ -105,12 +108,13 @@ function displayFiles(files) {
         sentimentIcon.style.marginLeft = '10px';
         sentimentIcon.id = 'sentiment-icon-' + i;
         sentimentIcon.onclick = () => {
-            analyzeSentiment(fileName, sentimentIcon.id);
+            analyzeSentiment(filename, sentimentIcon.id);
         };
 
         const textLink = document.createElement('a');
         textLink.href = file;
         textLink.text = file.substring(file.lastIndexOf('/') + 1);
+        textLink.target = "_new"
 
         tabledata.append(sentimentIcon, textLink);
         tablerow.appendChild(tabledata);
@@ -280,8 +284,8 @@ async function analyzeSentiment(filename, icon_id) {
 
     if (response.ok) {
         sentiment = data.sentiment
-        alert('Analyzed Sentiment: ' + sentiment)
-        //document.getElementById(icon_id).src='/static/img/' + sentiment + '.png'
+        //alert('Analyzed Sentiment: ' + sentiment)
+        document.getElementById(icon_id).src='/static/img/' + sentiment + '.png'
     } else {
         alert('Request failed');
     }

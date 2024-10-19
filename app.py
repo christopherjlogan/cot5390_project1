@@ -172,7 +172,7 @@ def convert_to_text(filename):
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
         sample_rate_hertz=16000,
-        language_code="en-US"
+        language_code=""
     )
     response = sttclient.recognize(config=config, audio=audio)
     transcript = ""
