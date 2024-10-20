@@ -21,21 +21,10 @@ async function loadUploadedFiles() {
     } catch (error) {
         console.error('Error fetching the files:', error);
     }
-    let sentiment_map;
-    try {
-        const response = await fetch('/api/get-sentiments');
-        if (!response.ok) {
-            throw new Error('Failed to fetch sentiments');
-        }
-        const data = JSON.parse(await response.text())
-        sentiment_map = data.message;  // Store the sentiments into the local array
-    } catch (error) {
-        console.error('Error fetching the files:', error);
-    }
-    displayFiles(uploadedFiles, sentiment_map);
+    displayFiles(uploadedFiles);
 }
 
-function displayFiles(files, sentiment_map) {
+function displayFiles(filemap) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';  // Clear any existing list
     let textFiles = []
@@ -43,6 +32,7 @@ function displayFiles(files, sentiment_map) {
     let sentimentFiles = []
     let image_dir = '/static/img/'
 
+    const files = Object.keys(filemap);
     files.forEach(file => {
         if (file.endsWith('.txt')) {
             if (file.indexOf('_sentiment') < 0) {
@@ -84,7 +74,7 @@ function displayFiles(files, sentiment_map) {
         };
 
         const sentimentIcon = document.createElement('img');
-        sentimentIcon.src = image_dir + 'sentiment-analysis.png';
+        sentimentIcon.src = image_dir + getSentimentIcon(filemap[file]);
         sentimentIcon.src = image_dir + getSentimentIcon(sentiment_map, file);
         sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
@@ -137,7 +127,7 @@ function displayFiles(files, sentiment_map) {
 
         // Create the image for sentiment analysis
         const sentimentIcon = document.createElement('img');
-        sentimentIcon.src = image_dir + 'sentiment-analysis.png';  // Replace with the actual path to your icon
+        sentimentIcon.src = image_dir + getSentimentIcon(filemap[file]);
         sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
@@ -189,6 +179,24 @@ function displayFiles(files, sentiment_map) {
         i++
     })
     fileList.appendChild(table)
+}
+
+function getSentimentIcon(sentiment) {
+    let value = ''
+    switch (sentiment) {
+    case 'positive':
+        value = 'positive.png'
+        break;
+    case 'neutral':
+        value = 'neutral.png'
+        break;
+    case 'negative':
+        value = 'negative.png'
+        break;
+    default:
+        value = 'sentiment-analysis.png'
+    }
+    return value
 }
 
 // Populate language options from API
