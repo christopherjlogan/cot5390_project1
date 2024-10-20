@@ -89,11 +89,14 @@ def get_uploaded_files():
             filename = file.rsplit('/', 1)[-1]
             sentiment = download_blob_as_text(BUCKET_NAME, filename)
             file_sentiment_map[file] = sentiment
+    print(file_sentiment_map)
     # process again to create map
     for file in files:
         if '_sentiment' not in file:
             if file in file_sentiment_map:
                 file_map[file] = file_sentiment_map[file]
+        else:
+            file_map[file] = ""
     return jsonify({'message': file_map})
 
 @app.route('/api/languages', methods=['GET'])
