@@ -30,11 +30,16 @@ function displayFiles(files) {
     fileList.innerHTML = '';  // Clear any existing list
     let textFiles = []
     let imageFiles = []
+    let sentimentFiles = []
     let image_dir = '/static/img/'
 
     files.forEach(file => {
         if (file.endsWith('.txt')) {
-            textFiles.push(file);
+            if (file.indexOf('_sentiment') > -1) {
+                textFiles.push(file);
+            } else {
+                sentimentFiles.push(file);
+            }
         } else {
             imageFiles.push(file);
         }
@@ -138,6 +143,37 @@ function displayFiles(files) {
         textLink.target = "_new"
 
         tabledata.append(trashIcon, sentimentIcon, textLink);
+        tablerow.appendChild(tabledata);
+        table.appendChild(tablerow)
+        i++
+    })
+
+    //Generating elements for sentiment files
+    textFiles.forEach(file => {
+        const tablerow = document.createElement('tr');
+        const tabledata = document.createElement('td');
+        tabledata.style.display = 'flex';
+        tabledata.style.alignItems = 'center';
+        tabledata.style.marginBottom = '10px';
+
+        const filename = file.substring(file.lastIndexOf('/') + 1);
+
+        const trashIcon = document.createElement('img');
+        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
+        trashIcon.alt = 'Delete file';
+        trashIcon.style.cursor = 'pointer';
+        trashIcon.style.width = '30px';  // Adjust the size as needed
+        trashIcon.style.marginLeft = '10px';
+        trashIcon.onclick = () => {
+            deleteFile(filename);
+        };
+
+        const textLink = document.createElement('a');
+        textLink.href = file;
+        textLink.text = file.substring(file.lastIndexOf('/') + 1);
+        textLink.target = "_new"
+
+        tabledata.append(trashIcon, textLink);
         tablerow.appendChild(tabledata);
         table.appendChild(tablerow)
         i++
