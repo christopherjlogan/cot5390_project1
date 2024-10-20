@@ -84,7 +84,7 @@ def get_uploaded_files():
     files = list_uploaded_files()
     for file in files:
         if '_sentiment' in file:
-            file_sentiment_map[file] = download_blob_as_text(BUCKET_NAME, file)
+            file_sentiment_map[file] = download_blob_as_text(BUCKET_NAME, file.rsplit('/', 1)[-1])
         else:
             file_sentiment_map[file] = ''
     return jsonify({'message': file_sentiment_map})
