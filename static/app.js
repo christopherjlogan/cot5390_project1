@@ -35,7 +35,7 @@ function displayFiles(files) {
 
     files.forEach(file => {
         if (file.endsWith('.txt')) {
-            if (file.indexOf('_sentiment') > -1) {
+            if (file.indexOf('_sentiment') < 0) {
                 sentimentFiles.push(file);
             } else {
                 textFiles.push(file);
