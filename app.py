@@ -169,6 +169,7 @@ def analyze_sentiment_from_file():
     )
     sentiment = langclient.analyze_sentiment(document=document).document_sentiment.score
     text_sentiment = evaluate_sentiment_score(sentiment)
+    upload_to_cloud_storage(text_sentiment, filename + "_sentiment.txt")
     print("Analyzing sentiment for", filename, "as", sentiment, "-",text_sentiment)
     return jsonify({'text': text_to_analyze,'sentiment': text_sentiment})
 
