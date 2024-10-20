@@ -75,7 +75,6 @@ function displayFiles(filemap) {
 
         const sentimentIcon = document.createElement('img');
         sentimentIcon.src = image_dir + getSentimentIcon(filemap[file]);
-        sentimentIcon.src = image_dir + getSentimentIcon(sentiment_map, file);
         sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed
