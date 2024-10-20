@@ -18,14 +18,24 @@ async function loadUploadedFiles() {
         }
         const data = JSON.parse(await response.text())
         uploadedFiles = data.message;  // Store the files into the local array
-
-        displayFiles(uploadedFiles);
     } catch (error) {
         console.error('Error fetching the files:', error);
     }
+    let sentiment_map;
+    try {
+        const response = await fetch('/api/get-sentiments');
+        if (!response.ok) {
+            throw new Error('Failed to fetch sentiments');
+        }
+        const data = JSON.parse(await response.text())
+        sentiment_map = data.message;  // Store the sentiments into the local array
+    } catch (error) {
+        console.error('Error fetching the files:', error);
+    }
+    displayFiles(uploadedFiles, sentiment_map);
 }
 
-function displayFiles(files) {
+function displayFiles(files, sentiment_map) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';  // Clear any existing list
     let textFiles = []
@@ -47,7 +57,6 @@ function displayFiles(files) {
 
     const table = document.createElement('table');
     i=0
-
     //Generating elements for image files
     imageFiles.forEach(file => {
         const tablerow = document.createElement('tr');
@@ -75,7 +84,8 @@ function displayFiles(files) {
         };
 
         const sentimentIcon = document.createElement('img');
-        sentimentIcon.src = image_dir + 'sentiment-analysis.png';  // Replace with the actual path to your icon
+        sentimentIcon.src = image_dir + 'sentiment-analysis.png';
+        sentimentIcon.src = image_dir + getSentimentIcon(sentiment_map, file);
         sentimentIcon.alt = 'Analyze sentiment';
         sentimentIcon.style.cursor = 'pointer';
         sentimentIcon.style.width = '30px';  // Adjust the size as needed

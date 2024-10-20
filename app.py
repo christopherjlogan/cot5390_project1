@@ -80,8 +80,14 @@ def home():
 # REST methods below
 @app.route('/api/files', methods=['GET'])
 def get_uploaded_files():
+    file_sentiment_map = {}
     files = list_uploaded_files()
-    return jsonify({'message': files})
+    for file in files:
+        if '_sentiment' in file:
+            file_sentiment_map[file] = download_blob_as_text(BUCKET_NAME, file)
+        else:
+            file_sentiment_map[file] = ''
+    return jsonify({'message': file_sentiment_map})
 
 @app.route('/api/languages', methods=['GET'])
 def get_languages():
