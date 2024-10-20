@@ -93,7 +93,7 @@ def get_uploaded_files():
     # process again to create map
     for file in files:
         if '_sentiment' in file:
-            if file not in file_sentiment_map:
+            if file in file_sentiment_map:
                 file_map[file] = file_sentiment_map[file]
             else:
                 file_map[file] = ""
