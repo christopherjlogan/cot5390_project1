@@ -53,6 +53,7 @@ In the implementation of Project 2, the following steps were followed.  I follow
 - Implemented sentiment detection API call
 - Added delete file API call
 - Enabled file deletion from web page
+- Designed and implemented extracting sentiment from uploaded sentiment files
 
 ### Solution Components
 ![COT5390 Project2 Architecture.jpg](reports/COT5390%20Project2%20Architecture.jpg)
@@ -115,12 +116,13 @@ Discuss what are the problems of this solution, assuming it needs to handle mult
 2. The user interface is very basic and would not work well with many features.
 3. No tests are implemented so testing the application required deploying and troubleshooting.
 4. More effective error handling should be implemented
-5. Text sentiment is not stored so it is not persistent after web page reload
-6. It is confusing that the cloud project, repo and other resources are named as "project 1"
+5. It is confusing that the cloud project, repo and other resources are named as "project 1"
+6. The file sentiments should be stored in a database ideally
 
 ## Problems Encountered and Solutions
 1. Refactoring to SPA took significant refactoring of both front and back-ends of the application.
 2. It took several iterations to understand how to use the Language API for sentiment detection
+3. It was challening to extract the previously detected file sentiment.
 
 ## Application Instructions
 1. Uploading Speech Audio Files
@@ -164,3 +166,4 @@ Discuss what are the problems of this solution, assuming it needs to handle mult
 ## Lessons Learned
 1. An indicator is needed on the front-end to indicate that the REST API call is processing
 2. How to use the JavaScript console in Chrome to troubleshoot API call issues
+3. How to use maps JavaScript
