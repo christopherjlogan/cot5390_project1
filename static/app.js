@@ -36,9 +36,9 @@ function displayFiles(files) {
     files.forEach(file => {
         if (file.endsWith('.txt')) {
             if (file.indexOf('_sentiment') > -1) {
-                textFiles.push(file);
-            } else {
                 sentimentFiles.push(file);
+            } else {
+                textFiles.push(file);
             }
         } else {
             imageFiles.push(file);
@@ -149,7 +149,7 @@ function displayFiles(files) {
     })
 
     //Generating elements for sentiment files
-    textFiles.forEach(file => {
+    sentimentFiles.forEach(file => {
         const tablerow = document.createElement('tr');
         const tabledata = document.createElement('td');
         tabledata.style.display = 'flex';
