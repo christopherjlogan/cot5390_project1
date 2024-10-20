@@ -7,6 +7,7 @@ GCP Project Name: cot5390project1
 GCP Project ID: https://console.cloud.google.com/welcome/new?project=cot5390project1  
 Github Repo: https://github.com/christopherjlogan/cot5390_project1  
 App URL: https://cot5390project1.uc.r.appspot.com/  
+* Even those these links say "project1", it contains the functionality for Project 2.
 
 ## Assignment Instructions
 Build upon your knowledge from project I and make the following adjustments:
@@ -115,6 +116,7 @@ Discuss what are the problems of this solution, assuming it needs to handle mult
 3. No tests are implemented so testing the application required deploying and troubleshooting.
 4. More effective error handling should be implemented
 5. Text sentiment is not stored so it is not persistent after web page reload
+6. It is confusing that the cloud project, repo and other resources are named as "project 1"
 
 ## Problems Encountered and Solutions
 1. Refactoring to SPA took significant refactoring of both front and back-ends of the application.
@@ -161,7 +163,6 @@ Discuss what are the problems of this solution, assuming it needs to handle mult
 ## Lessons Learned
 1. An indicator is needed on the front-end to indicate that the REST API call is processing
 2. How to use the JavaScript console in Chrome to troubleshoot API call issues
-3. 
 
 ## Code
 ### index.html
