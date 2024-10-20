@@ -88,7 +88,7 @@ def get_uploaded_files():
         if '_sentiment' in file:
             filename = file.rsplit('/', 1)[-1]
             sentiment = download_blob_as_text(BUCKET_NAME, filename)
-            file_sentiment_map[file] = sentiment
+            file_sentiment_map[file.split('_sentiment')[0]] = sentiment
     print(file_sentiment_map)
     # process again to create map
     for file in files:
