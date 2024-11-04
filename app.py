@@ -91,7 +91,7 @@ def upload_audio():
 
 @app.route('/api/upload/v2', methods=['POST'])
 # Upload an audio file
-def upload_audio():
+def upload_audio_v2():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
 
