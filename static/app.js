@@ -316,7 +316,7 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
     const language = document.getElementById('languageSelect').value;
     const gender = document.getElementById('genderSelect').value;
 
-    const response = await fetch('/api/text-to-speech/v2', {
+    const response = await fetch('/api/text-to-speech', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -337,7 +337,7 @@ document.getElementById('textToSpeechBtn').addEventListener('click', async () =>
 async function convertAudioToText(filename) {
     showLoadingOverlay()
     let language = document.getElementById('languageSelectForSTT').value
-    const response = await fetch('/api/speech-to-text', {
+    const response = await fetch('/api/speech-to-text/v2', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
