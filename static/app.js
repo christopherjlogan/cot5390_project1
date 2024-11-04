@@ -268,7 +268,7 @@ uploadRecordBtn.addEventListener('click', async () => {
     const timestamp = new Date().toISOString().replace(/[-:.]/g, '');  // Generate a timestamp
     formData.append('file', audioBlob, `recording_${timestamp}.wav`);
 
-    const response = await fetch('/api/upload', {
+    const response = await fetch('/api/upload/v2', {
         method: 'POST',
         body: formData
     });
@@ -278,7 +278,10 @@ uploadRecordBtn.addEventListener('click', async () => {
     } else {
         alert('Request failed');
     }
-    hideLoadingOverlay()
+    hideLoadingOverlay();
+    startRecordBtn.disabled = false;
+    stopRecordBtn.disabled = true;
+    uploadRecordBtn.disabled = true;
 });
 
 // Upload audio file
@@ -295,7 +298,7 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch('/api/upload', {
+    const response = await fetch('/api/upload/v2', {
         method: 'POST',
         body: formData
     });

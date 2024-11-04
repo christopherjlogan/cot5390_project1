@@ -59,10 +59,14 @@ In the implementation of Project 2, the following steps were followed.  I follow
 - Designed and implemented extracting sentiment from uploaded sentiment files
 
 #### Project 3
-- Implement feedback from grader: "please make links clickable sentiment analysis should be triggered from python at upload time - not js""
 - Evaluated the shortcomings of project 2 architecture
 - Researched how to use the multimodal LLM API
-- Refactored how sentinment analysis is implemented
+- Removed text-to-speech functionality
+- Change audio file upload to use LLM API for speech-to-text and sentiment analysis
+- Change audio recording to use LLM API for speech-to-text and sentiment analysis
+- 000.Implement feedback from grader: "sentiment analysis should be triggered from python at upload time - not js"
+- Implement feedback from grader: "please make links clickable"
+- Disable/remove unused functionality
 
 ### Solution Components
 ![COT5390 Project2 Architecture.jpg](reports/COT5390%20Project2%20Architecture.jpg)

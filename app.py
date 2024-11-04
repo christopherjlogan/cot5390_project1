@@ -41,6 +41,190 @@ else:
 BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg', 'm4a'}
 
+# REST methods
+@app.route('/', methods=['GET'])
+# Home page
+def home():
+    return render_template('index.html')
+
+@app.route('/api/languages', methods=['GET'])
+# Get the list of supported languages
+def get_languages():
+    return jsonify({'message': list_languages()})
+
+@app.route('/api/files', methods=['GET'])
+# Get the list of uploaded files
+def get_uploaded_files():
+    file_sentiment_map = {}
+    file_map = {}
+    files = list_uploaded_files()
+    # pre-process for sentiment
+    for file in files:
+        if '_sentiment' in file:
+            filename = file.rsplit('/', 1)[-1]
+            sentiment = download_blob_as_text(BUCKET_NAME, filename)
+            file_sentiment_map[file.split('_sentiment')[0]] = sentiment
+    print(file_sentiment_map)
+    # process again to create map
+    for file in files:
+        if '_sentiment' not in file:
+            if file in file_sentiment_map:
+                file_map[file] = file_sentiment_map[file]
+            else:
+                file_map[file] = ""
+        else:
+            file_map[file] = ""
+    return jsonify({'message': file_map})
+
+@app.route('/api/upload', methods=['POST'])
+# Upload an audio file
+def upload_audio():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        upload_to_cloud_storage(file.read(), filename)
+        return jsonify({'message': 'File uploaded successfully', 'filename': filename})
+    return jsonify({'error': 'File not allowed'}), 400
+
+@app.route('/api/upload/v2', methods=['POST'])
+# Upload an audio file
+def upload_audio():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file = upload_to_cloud_storage(file.read(), filename)
+        transcription = transcribe_and_analyze_sentiment(file, "en")
+        return jsonify({'transcription': transcription})
+    return jsonify({'error': 'File not allowed'}), 400
+
+'''@app.route('/api/text-to-speech', methods=['POST'])
+def text_to_speech():
+    data = request.get_json()
+    text = data.get('text')
+    language = data.get('language')
+    gender = data.get('gender')
+    response = generate_speech(text, language, gender)
+    # Save the audio file
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    filename = f"tts_{timestamp}_{language}_{gender}.mp3"
+    upload_to_cloud_storage(response.audio_content, filename)
+    return jsonify({'message': 'Text converted to speech successfully'})'''
+
+@app.route('/api/speech-to-text/v2', methods=['POST'])
+# Speech to text using Generative AI
+# TODO - implement using GenAI APIs
+def speech_to_text_v2():
+    print("Running speech to text v2")
+    data = request.get_json()
+    filename = data.get('filename')
+    language = data.get('language')
+    #change this line
+    converted_text = ''
+    prompt = "What is Generative AI?"
+    contents = [prompt]
+    response = model.generate_content(contents)
+    print("V2 speech to text response was ", response.text)
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    filename = f"stt_{timestamp}_{language}.txt"
+    upload_to_cloud_storage(response.text, filename)
+    return jsonify({'message': 'Speech converted to text successfully'})
+
+# DEPRECATE this method once re-implemented.
+@app.route('/api/speech-to-text', methods=['POST'])
+# Speech to text using Google Cloud Speech-to-Text
+def speech_to_text():
+    data = request.get_json()
+    filename = data.get('filename')
+    language = data.get('language')
+    converted_text = convert_to_text(filename, language)
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    filename = f"stt_{timestamp}_{language}.txt"
+    upload_to_cloud_storage(converted_text, filename)
+    return jsonify({'message': 'Speech converted to text successfully'})
+
+@app.route('/api/delete-file', methods=['POST'])
+# Delete an already uploaded file
+def delete_file():
+    data = request.get_json()
+    filename = data.get('filename')
+    delete_from_cloud_storage(filename)
+    return jsonify({'message': 'File successfully deleted'})
+
+@app.route('/api/analyze-sentiment', methods=['POST'])
+# Analyze sentiment of a text file
+# TODO - move this functionality to the upload methods and remove this method
+def analyze_sentiment_from_file():
+    data = request.get_json()
+    filename = data.get('filename')
+    # Get the file from the bucket
+    text_to_analyze = ''
+    if filename.endswith(".txt"):
+        text_to_analyze = download_blob_as_text(BUCKET_NAME, filename)
+    else:
+        # If the file is audio, convert to text first
+        text_to_analyze = convert_to_text(filename, "en")
+    # Run through sentiment analysis
+    document = language_v1.Document(
+        content=text_to_analyze,
+        type_=language_v1.Document.Type.PLAIN_TEXT,
+        language='en'
+    )
+    sentiment = langclient.analyze_sentiment(document=document).document_sentiment.score
+    text_sentiment = evaluate_sentiment_score(sentiment)
+    upload_to_cloud_storage(text_sentiment, filename + "_sentiment.txt")
+    print("Analyzing sentiment for", filename, "as", sentiment, "-",text_sentiment)
+    return jsonify({'text': text_to_analyze,'sentiment': text_sentiment})
+
+#---Helper functions---
+def transcribe_and_analyze_sentiment(filename, language):
+    prompt = "What is Generative AI?"
+    contents = [prompt]
+    response = model.generate_content(contents)
+    print("V2 speech to text response was ", response.text)
+    return response
+
+def evaluate_sentiment_score(score):
+    if score > 0:
+        return "positive"
+    elif score < 0:
+        return "negative"
+    else:
+        return "neutral"
+
+def convert_to_text(filename, language):
+    audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
+    audio = speech.RecognitionAudio(content=audio_content)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
+        sample_rate_hertz=16000,
+        language_code=language
+    )
+    response = sttclient.recognize(config=config, audio=audio)
+    transcript = ""
+    for result in response.results:
+        transcript += result.alternatives[0].transcript
+    return transcript
+
+def download_blob_as_bytes(bucket_name, blob_name):
+    print("Downloading blob as bytes", blob_name, "from bucket", bucket_name)
+    bucket = gcsclient.get_bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    bytes = blob.download_as_bytes()
+    return bytes
+
+def download_blob_as_text(bucket_name, blob_name):
+    print("Downloading blob as text", blob_name, "from bucket", bucket_name)
+    bucket = gcsclient.get_bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    bytes = blob.download_as_text()
+    return bytes
+
 # Function to check if file extension is allowed
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -81,63 +265,6 @@ def list_languages():
     languages = unique_languages_from_voices(response.voices)
     return languages
 
-@app.route('/', methods=['GET'])
-def home():
-    return render_template('index.html')
-
-# REST methods below
-@app.route('/api/files', methods=['GET'])
-def get_uploaded_files():
-    file_sentiment_map = {}
-    file_map = {}
-    files = list_uploaded_files()
-    # pre-process for sentiment
-    for file in files:
-        if '_sentiment' in file:
-            filename = file.rsplit('/', 1)[-1]
-            sentiment = download_blob_as_text(BUCKET_NAME, filename)
-            file_sentiment_map[file.split('_sentiment')[0]] = sentiment
-    print(file_sentiment_map)
-    # process again to create map
-    for file in files:
-        if '_sentiment' not in file:
-            if file in file_sentiment_map:
-                file_map[file] = file_sentiment_map[file]
-            else:
-                file_map[file] = ""
-        else:
-            file_map[file] = ""
-    return jsonify({'message': file_map})
-
-@app.route('/api/languages', methods=['GET'])
-def get_languages():
-    return jsonify({'message': list_languages()})
-
-@app.route('/api/upload', methods=['POST'])
-def upload_audio():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-
-    file = request.files['file']
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        upload_to_cloud_storage(file.read(), filename)
-        return jsonify({'message': 'File uploaded successfully', 'filename': filename})
-    return jsonify({'error': 'File not allowed'}), 400
-
-'''@app.route('/api/text-to-speech', methods=['POST'])
-def text_to_speech():
-    data = request.get_json()
-    text = data.get('text')
-    language = data.get('language')
-    gender = data.get('gender')
-    response = generate_speech(text, language, gender)
-    # Save the audio file
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"tts_{timestamp}_{language}_{gender}.mp3"
-    upload_to_cloud_storage(response.audio_content, filename)
-    return jsonify({'message': 'Text converted to speech successfully'})'''
-
 def generate_speech(text_input, selected_language, selected_gender):
     synthesis_input = texttospeech.SynthesisInput(text=text_input)
 
@@ -157,100 +284,6 @@ def generate_speech(text_input, selected_language, selected_gender):
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
     return response
-
-@app.route('/api/speech-to-text', methods=['POST'])
-def speech_to_text():
-    data = request.get_json()
-    filename = data.get('filename')
-    language = data.get('language')
-    converted_text = convert_to_text(filename, language)
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"stt_{timestamp}_{language}.txt"
-    upload_to_cloud_storage(converted_text, filename)
-    return jsonify({'message': 'Speech converted to text successfully'})
-
-@app.route('/api/speech-to-text/v2', methods=['POST'])
-def speech_to_text_v2():
-    print("Running speech to text v2")
-    data = request.get_json()
-    filename = data.get('filename')
-    language = data.get('language')
-    #change this line
-    converted_text = ''
-    prompt = "What is Generative AI?"
-    contents = [prompt]
-    response = model.generate_content(contents)
-    print("V2 speech to text response was ", response.text)
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"stt_{timestamp}_{language}.txt"
-    upload_to_cloud_storage(response.text, filename)
-    return jsonify({'message': 'Speech converted to text successfully'})
-
-@app.route('/api/delete-file', methods=['POST'])
-def delete_file():
-    data = request.get_json()
-    filename = data.get('filename')
-    delete_from_cloud_storage(filename)
-    return jsonify({'message': 'File successfully deleted'})
-
-@app.route('/api/analyze-sentiment', methods=['POST'])
-def analyze_sentiment_from_file():
-    data = request.get_json()
-    filename = data.get('filename')
-    # Get the file from the bucket
-    text_to_analyze = ''
-    if filename.endswith(".txt"):
-        text_to_analyze = download_blob_as_text(BUCKET_NAME, filename)
-    else:
-        # If the file is audio, convert to text first
-        text_to_analyze = convert_to_text(filename, "en")
-    # Run through sentiment analysis
-    document = language_v1.Document(
-        content=text_to_analyze,
-        type_=language_v1.Document.Type.PLAIN_TEXT,
-        language='en'
-    )
-    sentiment = langclient.analyze_sentiment(document=document).document_sentiment.score
-    text_sentiment = evaluate_sentiment_score(sentiment)
-    upload_to_cloud_storage(text_sentiment, filename + "_sentiment.txt")
-    print("Analyzing sentiment for", filename, "as", sentiment, "-",text_sentiment)
-    return jsonify({'text': text_to_analyze,'sentiment': text_sentiment})
-
-def evaluate_sentiment_score(score):
-    if score > 0:
-        return "positive"
-    elif score < 0:
-        return "negative"
-    else:
-        return "neutral"
-
-def convert_to_text(filename, language):
-    audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
-    audio = speech.RecognitionAudio(content=audio_content)
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
-        sample_rate_hertz=16000,
-        language_code=language
-    )
-    response = sttclient.recognize(config=config, audio=audio)
-    transcript = ""
-    for result in response.results:
-        transcript += result.alternatives[0].transcript
-    return transcript
-
-def download_blob_as_bytes(bucket_name, blob_name):
-    print("Downloading blob as bytes", blob_name, "from bucket", bucket_name)
-    bucket = gcsclient.get_bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    bytes = blob.download_as_bytes()
-    return bytes
-
-def download_blob_as_text(bucket_name, blob_name):
-    print("Downloading blob as text", blob_name, "from bucket", bucket_name)
-    bucket = gcsclient.get_bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    bytes = blob.download_as_text()
-    return bytes
 
 if __name__ == '__main__':
     app.run(debug=True)
