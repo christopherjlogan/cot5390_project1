@@ -1,5 +1,9 @@
 import os
+
+import vertexai
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, jsonify, request
+#from google import generativeai as gemini
+from vertexai.generative_models import GenerativeModel, Part, SafetySetting
 from google.cloud.language_v1 import LanguageServiceClient
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -21,6 +25,8 @@ if os.path.exists(SERVICE_ACCOUNT_FILE):
     sttclient = speech.SpeechClient(credentials=credentials)
     gcsclient = storage.Client(credentials=credentials)
     langclient = LanguageServiceClient(credentials=credentials)
+    vertexai.init(project='cot5390project1', location='us-central1')
+    model = GenerativeModel("gemini-1.5-flash-002")
 else:
     RUN_LOCALLY = False
     print("No service account file found, using Application Default Credentials (ADC)...")
@@ -29,6 +35,8 @@ else:
     sttclient = speech.SpeechClient()
     gcsclient = storage.Client()
     langclient = LanguageServiceClient()
+    vertexai.init(project='cot5390project1', location='us-central1')
+    model = GenerativeModel("gemini-1.5-flash-002")
 
 BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg', 'm4a'}
@@ -117,7 +125,7 @@ def upload_audio():
         return jsonify({'message': 'File uploaded successfully', 'filename': filename})
     return jsonify({'error': 'File not allowed'}), 400
 
-@app.route('/api/text-to-speech', methods=['POST'])
+'''@app.route('/api/text-to-speech', methods=['POST'])
 def text_to_speech():
     data = request.get_json()
     text = data.get('text')
@@ -128,7 +136,7 @@ def text_to_speech():
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     filename = f"tts_{timestamp}_{language}_{gender}.mp3"
     upload_to_cloud_storage(response.audio_content, filename)
-    return jsonify({'message': 'Text converted to speech successfully'})
+    return jsonify({'message': 'Text converted to speech successfully'})'''
 
 def generate_speech(text_input, selected_language, selected_gender):
     synthesis_input = texttospeech.SynthesisInput(text=text_input)
@@ -159,6 +167,22 @@ def speech_to_text():
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     filename = f"stt_{timestamp}_{language}.txt"
     upload_to_cloud_storage(converted_text, filename)
+    return jsonify({'message': 'Speech converted to text successfully'})
+
+@app.route('/api/speech-to-text/v2', methods=['POST'])
+def speech_to_text_v2():
+    data = request.get_json()
+    filename = data.get('filename')
+    language = data.get('language')
+    #change this line
+    converted_text = ''
+    prompt = "What is Generative AI?"
+    contents = [prompt]
+    response = model.generate_content(contents)
+    print(response.text)
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    filename = f"stt_{timestamp}_{language}.txt"
+    upload_to_cloud_storage(response.text, filename)
     return jsonify({'message': 'Speech converted to text successfully'})
 
 @app.route('/api/delete-file', methods=['POST'])

@@ -1,4 +1,4 @@
-# COT 5930 Project 2
+# COT 5930 Project 3
 
 Student: Chris Logan  
 Email: loganc2023@fau.edu
@@ -7,13 +7,16 @@ GCP Project Name: cot5390project1
 GCP Project ID: https://console.cloud.google.com/welcome/new?project=cot5390project1  
 Github Repo: https://github.com/christopherjlogan/cot5390_project1  
 App URL: https://cot5390project1.uc.r.appspot.com/  
-* Even those these links say "project1", it contains the functionality for Project 2.
+* Even those these links say "project1", it contains the functionality for Project 3.
 
 ## Assignment Instructions
-Build upon your knowledge from project I and make the following adjustments:
-- Leverage the Language API in Google Cloud to evaluate the sentiment of the
-audio or text uploaded
-- Display whether the text has a positive/neutral/negative connotation
+Build upon your knowledge from project II and make the following adjustments:
+- Using the multimodal LLM APIs from Google Cloud, replace the previously used
+APIs with a single LLM API
+- Your app should, in a single call, ask for a transcript and the sentiment analysis
+of the uploaded audio. The response from the LLM should be presented as an
+audio response by sending it to the TTS API
+- The option for text input is no longer required and should be removed.
 
 Provide a report of your application, architecture, code and design decisions, with a
 focus on what you learned.
@@ -54,6 +57,12 @@ In the implementation of Project 2, the following steps were followed.  I follow
 - Added delete file API call
 - Enabled file deletion from web page
 - Designed and implemented extracting sentiment from uploaded sentiment files
+
+#### Project 3
+- Implement feedback from grader: "please make links clickable sentiment analysis should be triggered from python at upload time - not js""
+- Evaluated the shortcomings of project 2 architecture
+- Researched how to use the multimodal LLM API
+- Refactored how sentinment analysis is implemented
 
 ### Solution Components
 ![COT5390 Project2 Architecture.jpg](reports/COT5390%20Project2%20Architecture.jpg)
