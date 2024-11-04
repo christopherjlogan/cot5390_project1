@@ -171,6 +171,7 @@ def speech_to_text():
 
 @app.route('/api/speech-to-text/v2', methods=['POST'])
 def speech_to_text_v2():
+    print("Running speech to text v2")
     data = request.get_json()
     filename = data.get('filename')
     language = data.get('language')
@@ -179,7 +180,7 @@ def speech_to_text_v2():
     prompt = "What is Generative AI?"
     contents = [prompt]
     response = model.generate_content(contents)
-    print(response.text)
+    print("V2 speech to text response was ", response.text)
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     filename = f"stt_{timestamp}_{language}.txt"
     upload_to_cloud_storage(response.text, filename)
