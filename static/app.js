@@ -308,7 +308,6 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
 document.getElementById('textToSpeechBtn').addEventListener('click', async () => {
     showLoadingOverlay()
     const text = document.getElementById('textToSpeechInput').value;
-    const language = document.getElementById('languageSelect').value;
     const gender = document.getElementById('genderSelect').value;
 
     const response = await fetch('/api/text-to-speech', {
