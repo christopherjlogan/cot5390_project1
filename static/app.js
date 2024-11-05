@@ -304,29 +304,6 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
     hideLoadingOverlay()
 });
 
-// Convert text to speech
-document.getElementById('textToSpeechBtn').addEventListener('click', async () => {
-    showLoadingOverlay()
-    const text = document.getElementById('textToSpeechInput').value;
-    const gender = document.getElementById('genderSelect').value;
-
-    const response = await fetch('/api/text-to-speech', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text, language, gender })
-    });
-
-    if (response.ok) {
-        document.getElementById('textToSpeechInput').value = ''
-        await loadUploadedFiles(); // Reload file list
-    } else {
-        alert('Request failed');
-    }
-    hideLoadingOverlay()
-});
-
 // Function to call the API for converting audio to text
 async function convertAudioToText(filename) {
     showLoadingOverlay()
