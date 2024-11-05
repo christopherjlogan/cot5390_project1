@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COT 5930 Project 2 - Chris Logan</title>
+    <title>COT 5930 Project 3 - Chris Logan</title>
     <link rel="stylesheet" href="../static/styles.css">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 </head>
 <body>
- <h1>COT5390 Project 2 - Chris Logan</h1>
-    <h2>Bi-Directional Text/Speech Conversion with Sentiment Analysis</h2>
+ <h1>COT5390 Project 3 - Chris Logan</h1>
+    <h2>Speech-to-Text Conversion with Sentiment Analysis using GenAI</h2>
      <div id="overlay">
         <div id="spinner"></div>
     </div>
+    <audio id="responseAudioPlayback" hidden></audio>
     <!-- Audio file upload form -->
     <h2>Upload An Audio File</h2>
     <input type="file" id="audioFileInput" accept=".mp3, .wav, .ogg, .m4a">
     <button id="uploadFileBtn">Upload</button>
-    <audio id="audioUploadPlayback" controls></audio>
 
     <hr>
     <h2>Record Audio</h2>
