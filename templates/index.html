@@ -19,6 +19,7 @@
     <h2>Upload An Audio File</h2>
     <input type="file" id="audioFileInput" accept=".mp3, .wav, .ogg, .m4a">
     <button id="uploadFileBtn">Upload</button>
+    <audio id="audioUploadPlayback" controls></audio>
 
     <hr>
     <h2>Record Audio</h2>
@@ -48,6 +49,10 @@
     <h2>Uploaded Files</h2>
     <label for="language">Choose language for conversion:</label>
     <select id="languageSelectForSTT"></select>
+     <select id="genderSelect" required>
+        <option value="MALE">Male</option>
+        <option value="FEMALE">Female</option>
+    </select>
     <div id="fileList">Loading files...</div>
     <script src="../static/app.js"></script>
 </body>

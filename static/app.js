@@ -215,14 +215,6 @@ async function loadLanguages() {
 
 // Populate language dropdown dynamically for supported languages
 function populateLanguageSelect(languages) {
-    const languageSelect = document.getElementById('languageSelect');
-    languages.forEach(language => {
-        const option = document.createElement('option');
-        option.value = language;
-        option.textContent = language;
-        languageSelect.appendChild(option)
-    });
-
     const languageSelectForSTT = document.getElementById('languageSelectForSTT');
     languages.forEach(language => {
         const option = document.createElement('option');
