@@ -24,7 +24,7 @@ async function loadUploadedFiles() {
     displayFiles(uploadedFiles);
 }
 
-function displayFiles(filemap) {
+function displayFiles_v1(filemap) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';  // Clear any existing list
     let textFiles = []
@@ -178,6 +178,91 @@ function displayFiles(filemap) {
         i++
     })
     fileList.appendChild(table)
+}
+
+function displayFiles(filemap) {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = '';  // Clear any existing list
+    let textFiles = []
+    let imageFiles = []
+    let image_dir = '/static/img/'
+
+    const files = Object.keys(filemap);
+    files.forEach(file => {
+        if (file.endsWith('.txt')) {
+            textFiles.push(file);
+        } else {
+            imageFiles.push(file);
+        }
+    })
+
+    const table = document.createElement('table');
+    i=0
+    //Generating elements for image files
+    imageFiles.forEach(file => {
+        const tablerow = document.createElement('tr');
+        const tabledata = document.createElement('td');
+        tabledata.style.display = 'flex';
+        tabledata.style.alignItems = 'center';
+        tabledata.style.marginBottom = '10px';
+
+        // Create and configure the audio element
+        const audioElement = document.createElement('audio');
+        audioElement.controls = true;
+        audioElement.src = file;
+
+        // Extract the file name from the file URL
+        const filename = file.substring(file.lastIndexOf('/') + 1);
+
+        const trashIcon = document.createElement('img');
+        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
+        trashIcon.alt = 'Delete file';
+        trashIcon.style.cursor = 'pointer';
+        trashIcon.style.width = '30px';  // Adjust the size as needed
+        trashIcon.style.marginLeft = '10px';
+        trashIcon.onclick = () => {
+            deleteFile(filename);
+        };
+
+        const anchor = document.createElement('a');
+        anchor.href = file;
+        anchor.text = filename
+        tabledata.append(trashIcon, audioElement, anchor);
+        tablerow.appendChild(tabledata);
+        table.appendChild(tablerow)
+        i++
+    });
+
+    //Generating elements for text files
+    textFiles.forEach(file => {
+        const tablerow = document.createElement('tr');
+        const tabledata = document.createElement('td');
+        tabledata.style.display = 'flex';
+        tabledata.style.alignItems = 'center';
+        tabledata.style.marginBottom = '10px';
+
+        const filename = file.substring(file.lastIndexOf('/') + 1);
+
+        const trashIcon = document.createElement('img');
+        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
+        trashIcon.alt = 'Delete file';
+        trashIcon.style.cursor = 'pointer';
+        trashIcon.style.width = '30px';  // Adjust the size as needed
+        trashIcon.style.marginLeft = '10px';
+        trashIcon.onclick = () => {
+            deleteFile(filename);
+        };
+
+        const textLink = document.createElement('a');
+        textLink.href = file;
+        textLink.text = file.substring(file.lastIndexOf('/') + 1);
+        textLink.target = "_new"
+
+        tabledata.append(trashIcon, textLink);
+        tablerow.appendChild(tabledata);
+        table.appendChild(tablerow)
+        i++
+    })
 }
 
 function getSentimentIcon(sentiment) {

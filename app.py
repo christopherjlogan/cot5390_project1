@@ -41,7 +41,7 @@ else:
 BUCKET_NAME = 'cot5390project1.appspot.com'
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'ogg', 'm4a'}
 
-# REST methods
+# --------REST methods--------
 @app.route('/', methods=['GET'])
 # Home page
 def home():
@@ -52,9 +52,9 @@ def home():
 def get_languages():
     return jsonify({'message': list_languages()})
 
-@app.route('/api/files', methods=['GET'])
+@app.route('/api/files/v1', methods=['GET'])
 # Get the list of uploaded files
-def get_uploaded_files():
+def get_uploaded_files_v1():
     file_sentiment_map = {}
     file_map = {}
     files = list_uploaded_files()
@@ -75,6 +75,12 @@ def get_uploaded_files():
         else:
             file_map[file] = ""
     return jsonify({'message': file_map})
+
+@app.route('/api/files/v2', methods=['GET'])
+# Get the list of uploaded files
+def get_uploaded_files():
+    files = list_uploaded_files()
+    return jsonify({'message': files})
 
 '''@app.route('/api/upload', methods=['POST'])
 # Upload an audio file
@@ -230,7 +236,7 @@ def download_blob_as_text(bucket_name, blob_name):
     bytes = blob.download_as_text()
     return bytes
 
-# Function to check if file extension is allowed
+# --------Function to check if file extension is allowed--------
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
