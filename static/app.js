@@ -106,6 +106,7 @@ function displayFiles(files) {
         table.appendChild(tablerow)
         i++
     })
+    fileList.appendChild(table)
 }
 
 // Populate language options from API
