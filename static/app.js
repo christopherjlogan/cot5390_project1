@@ -12,7 +12,7 @@ let audioBlob;
 // Fetch list of uploaded files from API
 async function loadUploadedFiles() {
     try {
-        const response = await fetch('/api/files');
+        const response = await fetch('/api/files/v2');
         if (!response.ok) {
             throw new Error('Failed to fetch files');
         }
