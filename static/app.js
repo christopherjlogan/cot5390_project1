@@ -24,14 +24,15 @@ async function loadUploadedFiles() {
     displayFiles(uploadedFiles);
 }
 
-function displayFiles(filemap) {
+function displayFiles(filelist) {
     const fileList = document.getElementById('fileList');
+    alert(fileList)
     fileList.innerHTML = '';  // Clear any existing list
     let textFiles = []
     let imageFiles = []
     let image_dir = '/static/img/'
 
-    filemap.forEach(file => {
+    for (let file of filelist) {
         if (file.endsWith('.txt')) {
             textFiles.push(file);
         } else {
