@@ -109,32 +109,6 @@ function displayFiles(files) {
     fileList.appendChild(table)
 }
 
-// Populate language options from API
-async function loadLanguages() {
-    try {
-        const response = await fetch('/api/languages');
-        if (!response.ok) {
-            throw new Error('Failed to fetch files');
-        }
-        const data = JSON.parse(await response.text())
-        languages = data.message;  // Store the files into the local array
-        await populateLanguageSelect(languages);
-    } catch (error) {
-        console.error('Error fetching the files:', error);
-    }
-}
-
-// Populate language dropdown dynamically for supported languages
-function populateLanguageSelect(languages) {
-    const languageSelectForSTT = document.getElementById('languageSelectForSTT');
-    languages.forEach(language => {
-        const option = document.createElement('option');
-        option.value = language;
-        option.textContent = language;
-        languageSelectForSTT.appendChild(option)
-    });
-}
-
 // Start audio recording
 startRecordBtn.addEventListener('click', async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -209,11 +183,20 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
     if (response.ok) {
         document.getElementById('audioFileInput').value = ''
         await loadUploadedFiles(); // Reload file list
+        playAudioResponse(response)
     } else {
         alert('Request failed');
     }
     hideLoadingOverlay()
 });
+
+async function playAudioResponse(response) {
+    const data = await response.blob()
+    const audioURL = URL.createObjectURL(audioBlob);
+    const audioElement = document.getElementById('responseAudioPlayback')
+    audioElement.src = audioURL;
+    audioElement.play();
+}
 
 // Function to call the API for converting audio to text
 async function convertAudioToText(filename) {
@@ -284,5 +267,4 @@ function hideLoadingOverlay() {
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
     loadUploadedFiles();
-    loadLanguages();
 });

@@ -108,24 +108,16 @@ def upload_audio_v2():
         file = upload_to_cloud_storage(file.read(), filename)
         #transcribe the file and analyze sentiment
         transcription = transcribe_and_analyze_sentiment(file, "en")
+        print("Transcribed audio to text as", transcription)
+        #save transcription to a file
+        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        filename = f"stt_{timestamp}.txt"
+        upload_to_cloud_storage(transcription, filename)
         #convert transcription to audio file
         converted_audio = generate_speech(transcription, "en-us", "male")
         #return the audio data
         return jsonify({'response': converted_audio})
     return jsonify({'error': 'File not allowed'}), 400
-
-'''@app.route('/api/text-to-speech', methods=['POST'])
-def text_to_speech():
-    data = request.get_json()
-    text = data.get('text')
-    language = data.get('language')
-    gender = data.get('gender')
-    response = generate_speech(text, language, gender)
-    # Save the audio file
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"tts_{timestamp}_{language}_{gender}.mp3"
-    upload_to_cloud_storage(response.audio_content, filename)
-    return jsonify({'message': 'Text converted to speech successfully'})'''
 
 @app.route('/api/speech-to-text/v2', methods=['POST'])
 # Speech to text using Generative AI
