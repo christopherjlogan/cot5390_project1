@@ -24,162 +24,6 @@ async function loadUploadedFiles() {
     displayFiles(uploadedFiles);
 }
 
-function displayFiles_v1(filemap) {
-    const fileList = document.getElementById('fileList');
-    fileList.innerHTML = '';  // Clear any existing list
-    let textFiles = []
-    let imageFiles = []
-    let sentimentFiles = []
-    let image_dir = '/static/img/'
-
-    const files = Object.keys(filemap);
-    files.forEach(file => {
-        if (file.endsWith('.txt')) {
-            if (file.indexOf('_sentiment') < 0) {
-                textFiles.push(file);
-            } else {
-                sentimentFiles.push(file);
-            }
-        } else {
-            imageFiles.push(file);
-        }
-    })
-
-    const table = document.createElement('table');
-    i=0
-    //Generating elements for image files
-    imageFiles.forEach(file => {
-        const tablerow = document.createElement('tr');
-        const tabledata = document.createElement('td');
-        tabledata.style.display = 'flex';
-        tabledata.style.alignItems = 'center';
-        tabledata.style.marginBottom = '10px';
-
-        // Create and configure the audio element
-        const audioElement = document.createElement('audio');
-        audioElement.controls = true;
-        audioElement.src = file;
-
-        // Extract the file name from the file URL
-        const filename = file.substring(file.lastIndexOf('/') + 1);
-
-        const trashIcon = document.createElement('img');
-        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
-        trashIcon.alt = 'Delete file';
-        trashIcon.style.cursor = 'pointer';
-        trashIcon.style.width = '30px';  // Adjust the size as needed
-        trashIcon.style.marginLeft = '10px';
-        trashIcon.onclick = () => {
-            deleteFile(filename);
-        };
-
-        const sentimentIcon = document.createElement('img');
-        sentimentIcon.src = image_dir + getSentimentIcon(filemap[file]);
-        sentimentIcon.alt = 'Analyze sentiment';
-        sentimentIcon.style.cursor = 'pointer';
-        sentimentIcon.style.width = '30px';  // Adjust the size as needed
-        sentimentIcon.style.marginLeft = '10px';
-        sentimentIcon.id = 'sentiment-icon-' + i;
-        sentimentIcon.onclick = () => {
-            analyzeSentiment(filename, sentimentIcon.id);
-        };
-
-        // Create the image that calls the conversion API
-        const convertIcon = document.createElement('img');
-        convertIcon.src = image_dir + 'speech-to-text.png';  // Replace with the actual path to your icon
-        convertIcon.alt = 'Convert to text';
-        convertIcon.style.cursor = 'pointer';
-        convertIcon.style.width = '30px';  // Adjust the size as needed
-        convertIcon.style.marginLeft = '10px';
-        convertIcon.onclick = () => {
-            convertAudioToText(filename);
-        };
-
-        const anchor = document.createElement('a');
-        anchor.href = file;
-        anchor.text = filename
-        tabledata.append(trashIcon, sentimentIcon, convertIcon, audioElement, anchor);
-        tablerow.appendChild(tabledata);
-        table.appendChild(tablerow)
-        i++
-    });
-
-    //Generating elements for text files
-    textFiles.forEach(file => {
-        const tablerow = document.createElement('tr');
-        const tabledata = document.createElement('td');
-        tabledata.style.display = 'flex';
-        tabledata.style.alignItems = 'center';
-        tabledata.style.marginBottom = '10px';
-
-        const filename = file.substring(file.lastIndexOf('/') + 1);
-
-        const trashIcon = document.createElement('img');
-        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
-        trashIcon.alt = 'Delete file';
-        trashIcon.style.cursor = 'pointer';
-        trashIcon.style.width = '30px';  // Adjust the size as needed
-        trashIcon.style.marginLeft = '10px';
-        trashIcon.onclick = () => {
-            deleteFile(filename);
-        };
-
-        // Create the image for sentiment analysis
-        const sentimentIcon = document.createElement('img');
-        sentimentIcon.src = image_dir + getSentimentIcon(filemap[file]);
-        sentimentIcon.alt = 'Analyze sentiment';
-        sentimentIcon.style.cursor = 'pointer';
-        sentimentIcon.style.width = '30px';  // Adjust the size as needed
-        sentimentIcon.style.marginLeft = '10px';
-        sentimentIcon.id = 'sentiment-icon-' + i;
-        sentimentIcon.onclick = () => {
-            analyzeSentiment(filename, sentimentIcon.id);
-        };
-
-        const textLink = document.createElement('a');
-        textLink.href = file;
-        textLink.text = file.substring(file.lastIndexOf('/') + 1);
-        textLink.target = "_new"
-
-        tabledata.append(trashIcon, sentimentIcon, textLink);
-        tablerow.appendChild(tabledata);
-        table.appendChild(tablerow)
-        i++
-    })
-
-    //Generating elements for sentiment files
-    sentimentFiles.forEach(file => {
-        const tablerow = document.createElement('tr');
-        const tabledata = document.createElement('td');
-        tabledata.style.display = 'flex';
-        tabledata.style.alignItems = 'center';
-        tabledata.style.marginBottom = '10px';
-
-        const filename = file.substring(file.lastIndexOf('/') + 1);
-
-        const trashIcon = document.createElement('img');
-        trashIcon.src = image_dir + 'trash.png';  // Replace with the actual path to your icon
-        trashIcon.alt = 'Delete file';
-        trashIcon.style.cursor = 'pointer';
-        trashIcon.style.width = '30px';  // Adjust the size as needed
-        trashIcon.style.marginLeft = '10px';
-        trashIcon.onclick = () => {
-            deleteFile(filename);
-        };
-
-        const textLink = document.createElement('a');
-        textLink.href = file;
-        textLink.text = file.substring(file.lastIndexOf('/') + 1);
-        textLink.target = "_new"
-
-        tabledata.append(trashIcon, textLink);
-        tablerow.appendChild(tabledata);
-        table.appendChild(tablerow)
-        i++
-    })
-    fileList.appendChild(table)
-}
-
 function displayFiles(filemap) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';  // Clear any existing list
@@ -187,8 +31,7 @@ function displayFiles(filemap) {
     let imageFiles = []
     let image_dir = '/static/img/'
 
-    const files = Object.keys(filemap);
-    files.forEach(file => {
+    filemap.forEach(file => {
         if (file.endsWith('.txt')) {
             textFiles.push(file);
         } else {
@@ -263,24 +106,6 @@ function displayFiles(filemap) {
         table.appendChild(tablerow)
         i++
     })
-}
-
-function getSentimentIcon(sentiment) {
-    let value = ''
-    switch (sentiment) {
-    case 'positive':
-        value = 'positive.png'
-        break;
-    case 'neutral':
-        value = 'neutral.png'
-        break;
-    case 'negative':
-        value = 'negative.png'
-        break;
-    default:
-        value = 'sentiment-analysis.png'
-    }
-    return value
 }
 
 // Populate language options from API
