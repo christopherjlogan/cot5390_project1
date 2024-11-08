@@ -38,7 +38,7 @@ function displayFiles(filelist) {
         } else {
             imageFiles.push(file);
         }
-    })
+    }
 
     const table = document.createElement('table');
     i=0
