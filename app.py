@@ -132,7 +132,9 @@ def transcribe_and_analyze_sentiment(filename, customprompt):
         prompt = customprompt
     print("Transcribing using prompt: ", prompt)
     audio_file = Part.from_uri(filename, mime_type="audio/wav")
+    print("Audio file created for transcription")
     contents = [audio_file, prompt]
+    print("Model contents created")
     response = model.generate_content(contents)
     print("Transcription response was ", response.text)
     return response.text
