@@ -85,7 +85,7 @@ def upload_audio_v2():
         #store the uploaded file into the bucket
         file_url = upload_to_cloud_storage(file.read(), filename)
         #transcribe the file and analyze sentiment
-        transcription = transcribe_and_analyze_sentiment(file, request.form.get('prompt'))
+        transcription = transcribe_and_analyze_sentiment(file_url, request.form.get('prompt'))
         #save transcription to a file
         timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         filename = f"stt_{timestamp}.txt"
@@ -124,14 +124,14 @@ def delete_file():
     return jsonify({'message': 'File successfully deleted'})
 
 #---Helper functions---
-def transcribe_and_analyze_sentiment(filename, customprompt):
-    print("Transcribing and analyzing sentiment for file ", filename)
+def transcribe_and_analyze_sentiment(file, customprompt):
+    print("Transcribing and analyzing sentiment for file ", file)
     if customprompt == "":
         prompt = "Transcribe this audio verbatim and analyze its sentiment as positive, negative, or neutral."
     else:
         prompt = customprompt
     print("Transcribing using prompt: ", prompt)
-    audio_file = Part.from_uri(filename, mime_type="audio/wav")
+    audio_file = Part.from_uri(file, mime_type="audio/wav")
     print("Audio file created for transcription")
     contents = [audio_file, prompt]
     print("Model contents created")
