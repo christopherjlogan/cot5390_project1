@@ -194,11 +194,13 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
 });
 
 async function playAudioResponse(response) {
+
     const audioContent = atob(response.audioContent);
     const audioBlob = new Blob([Uint8Array.from(audioContent, c => c.charCodeAt(0))], { type: 'audio/mp3' });
     const audioUrl = URL.createObjectURL(audioBlob);
-    const audioElement = new Audio(audioUrl);
-    await audioElement.play();
+    const audioElement = document.getElementById('responseAudioPlayback')
+    audioElement.src = audioUrl;
+    audioElement.play();
 }
 
 // Function to call the API for converting audio to text
