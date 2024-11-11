@@ -1,9 +1,9 @@
 let uploadedFiles = []
 let languages = []
 
-const startRecordBtn = document.getElementById('startRecord');
-const stopRecordBtn = document.getElementById('stopRecord');
-const uploadRecordBtn = document.getElementById('uploadRecord');
+const startRecording = document.getElementById('startRecording');
+const stopRecording = document.getElementById('stopRecording');
+const uploadRecording = document.getElementById('uploadRecording');
 const audioPlayback = document.getElementById('audioPlayback');
 let mediaRecorder;
 let audioChunks = [];
@@ -139,11 +139,12 @@ stopRecordBtn.addEventListener('click', () => {
 });
 
 // Upload recorded audio
-uploadRecordBtn.addEventListener('click', async () => {
+uploadRecording.addEventListener('click', async () => {
     showLoadingOverlay()
     const formData = new FormData();
     const timestamp = new Date().toISOString().replace(/[-:.]/g, '');  // Generate a timestamp
     formData.append('file', audioBlob, `recording_${timestamp}.wav`);
+    formData.append('prompt', document.getElementById('prompt').value);
 
     const response = await fetch('/api/upload/v2', {
         method: 'POST',
@@ -151,18 +152,19 @@ uploadRecordBtn.addEventListener('click', async () => {
     });
 
     if (response.ok) {
+        playAudioResponse(response)
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed');
     }
     hideLoadingOverlay();
-    startRecordBtn.disabled = false;
-    stopRecordBtn.disabled = true;
-    uploadRecordBtn.disabled = true;
+    startRecording.disabled = false;
+    stopRecording.disabled = true;
+    uploadRecording.disabled = true;
 });
 
 // Upload audio file
-document.getElementById('uploadFileBtn').addEventListener('click', async () => {
+document.getElementById('uploadFile').addEventListener('click', async () => {
     showLoadingOverlay()
     const fileInput = document.getElementById('audioFileInput');
     const file = fileInput.files[0];
@@ -183,8 +185,8 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
 
     if (response.ok) {
         document.getElementById('audioFileInput').value = ''
-        await loadUploadedFiles(); // Reload file list
         playAudioResponse(response)
+        await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed');
     }
