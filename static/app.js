@@ -155,7 +155,7 @@ uploadRecording.addEventListener('click', async () => {
         playAudioResponse(response)
         await loadUploadedFiles(); // Reload file list
     } else {
-        alert('Request failed');
+        alert('Request failed with status: ' + response.status);
     }
     hideLoadingOverlay();
     startRecording.disabled = false;
@@ -218,7 +218,7 @@ async function convertAudioToText(filename) {
     if (response.ok) {
         await loadUploadedFiles(); // Reload file list
     } else {
-        alert('Request failed');
+        alert('Request failed with status: ' + response.status);
     }
     hideLoadingOverlay()
 }

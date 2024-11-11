@@ -52,30 +52,6 @@ def home():
 def get_languages():
     return jsonify({'message': list_languages()})
 
-@app.route('/api/files/v1', methods=['GET'])
-# Get the list of uploaded files
-def get_uploaded_files_v1():
-    file_sentiment_map = {}
-    file_map = {}
-    files = list_uploaded_files()
-    # pre-process for sentiment
-    for file in files:
-        if '_sentiment' in file:
-            filename = file.rsplit('/', 1)[-1]
-            sentiment = download_blob_as_text(BUCKET_NAME, filename)
-            file_sentiment_map[file.split('_sentiment')[0]] = sentiment
-    print(file_sentiment_map)
-    # process again to create map
-    for file in files:
-        if '_sentiment' not in file:
-            if file in file_sentiment_map:
-                file_map[file] = file_sentiment_map[file]
-            else:
-                file_map[file] = ""
-        else:
-            file_map[file] = ""
-    return jsonify({'message': file_map})
-
 @app.route('/api/files/v2', methods=['GET'])
 # Get the list of uploaded files
 def get_uploaded_files():
@@ -103,6 +79,7 @@ def upload_audio_v2():
         return jsonify({'error': 'No file uploaded'}), 400
 
     file = request.files['file']
+    print("File uploaded was", file)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         #store the uploaded file into the bucket
@@ -166,6 +143,7 @@ def transcribe_and_analyze_sentiment(filename, customprompt):
         prompt = "Transcribe this audio verbatim and analyze its sentiment as positive, negative, or neutral."
     else:
         prompt = customprompt
+    print("Transcribing file ", filename, " with prompt ", prompt)
     audio_file = Part.from_uri(filename, mime_type="audio/wav")
     contents = [audio_file, prompt]
     response = model.generate_content(contents)
@@ -218,6 +196,7 @@ def upload_to_cloud_storage(file_content, filename):
     bucket = gcsclient.bucket(BUCKET_NAME)
     blob = bucket.blob(filename)
     blob.upload_from_string(file_content)
+    print(f"File {filename} uploaded to cloud storage bucket {BUCKET_NAME}")
     return blob.public_url
 
 def delete_from_cloud_storage(filename):
