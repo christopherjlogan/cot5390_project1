@@ -86,7 +86,6 @@ def upload_audio_v2():
         file = upload_to_cloud_storage(file.read(), filename)
         #transcribe the file and analyze sentiment
         transcription = transcribe_and_analyze_sentiment(file, request.get_json().get('prompt'))
-        print("Transcribed audio to text as", transcription)
         #save transcription to a file
         timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         filename = f"stt_{timestamp}.txt"
@@ -116,19 +115,6 @@ def speech_to_text_v2():
     upload_to_cloud_storage(response.text, filename)
     return jsonify({'message': 'Speech converted to text successfully'})
 
-# DEPRECATE this method once re-implemented.
-'''@app.route('/api/speech-to-text', methods=['POST'])
-# Speech to text using Google Cloud Speech-to-Text
-def speech_to_text():
-    data = request.get_json()
-    filename = data.get('filename')
-    language = data.get('language')
-    converted_text = convert_to_text(filename, language)
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"stt_{timestamp}_{language}.txt"
-    upload_to_cloud_storage(converted_text, filename)
-    return jsonify({'message': 'Speech converted to text successfully'})'''
-
 @app.route('/api/delete-file', methods=['POST'])
 # Delete an already uploaded file
 def delete_file():
@@ -139,14 +125,16 @@ def delete_file():
 
 #---Helper functions---
 def transcribe_and_analyze_sentiment(filename, customprompt):
+    print("Transcribing and analyzing sentiment for file ", filename)
     if customprompt == "":
         prompt = "Transcribe this audio verbatim and analyze its sentiment as positive, negative, or neutral."
     else:
         prompt = customprompt
-    print("Transcribing file ", filename, " with prompt ", prompt)
+    print("Transcribing using prompt: ", prompt)
     audio_file = Part.from_uri(filename, mime_type="audio/wav")
     contents = [audio_file, prompt]
     response = model.generate_content(contents)
+    print("Transcription response was ", response.text)
     return response.text
 
 '''def convert_to_text(filename, language):

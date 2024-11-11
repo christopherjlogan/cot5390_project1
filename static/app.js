@@ -177,7 +177,6 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('prompt', document.getElementById('prompt').value);
-    alert(formData.toString())
 
     const response = await fetch('/api/upload/v2', {
         method: 'POST',
