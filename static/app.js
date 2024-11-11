@@ -110,7 +110,7 @@ function displayFiles(files) {
 }
 
 // Start audio recording
-startRecordBtn.addEventListener('click', async () => {
+startRecording.addEventListener('click', async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.start();
@@ -124,18 +124,18 @@ startRecordBtn.addEventListener('click', async () => {
         audioChunks = [];
         const audioURL = URL.createObjectURL(audioBlob);
         audioPlayback.src = audioURL;
-        uploadRecordBtn.disabled = false;
+        uploadRecording.disabled = false;
     };
 
-    startRecordBtn.disabled = true;
-    stopRecordBtn.disabled = false;
+    startRecording.disabled = true;
+    stopRecording.disabled = false;
 });
 
 // Stop audio recording
-stopRecordBtn.addEventListener('click', () => {
+stopRecording.addEventListener('click', () => {
     mediaRecorder.stop();
-    startRecordBtn.disabled = false;
-    stopRecordBtn.disabled = true;
+    startRecording.disabled = false;
+    stopRecording.disabled = true;
 });
 
 // Upload recorded audio
