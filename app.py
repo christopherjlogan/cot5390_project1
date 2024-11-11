@@ -1,3 +1,4 @@
+import base64
 import os
 
 import vertexai
@@ -92,8 +93,12 @@ def upload_audio_v2():
         upload_to_cloud_storage(transcription, filename)
         #convert transcription to audio file
         converted_audio = generate_speech(transcription, "en-us", "MALE")
+        audio_base64 = base64.b64encode(converted_audio.audio_content).decode('utf-8')
         #return the audio data
-        return jsonify({'response': converted_audio})
+        return jsonify({
+            "audioContent": audio_base64,
+            "mimeType": "audio/mp3"
+        })
     return jsonify({'error': 'File not allowed'}), 400
 
 @app.route('/api/speech-to-text/v2', methods=['POST'])
@@ -138,20 +143,6 @@ def transcribe_and_analyze_sentiment(file, customprompt):
     response = model.generate_content(contents)
     print("Transcription response was ", response.text)
     return response.text
-
-'''def convert_to_text(filename, language):
-    audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
-    audio = speech.RecognitionAudio(content=audio_content)
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust based on your file type (MP3 assumed here)
-        sample_rate_hertz=16000,
-        language_code=language
-    )
-    response = sttclient.recognize(config=config, audio=audio)
-    transcript = ""
-    for result in response.results:
-        transcript += result.alternatives[0].transcript
-    return transcript'''
 
 def download_blob_as_bytes(bucket_name, blob_name):
     print("Downloading blob as bytes", blob_name, "from bucket", bucket_name)
