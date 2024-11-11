@@ -174,6 +174,7 @@ document.getElementById('uploadFileBtn').addEventListener('click', async () => {
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('prompt', document.getElementById('prompt').value);
 
     const response = await fetch('/api/upload/v2', {
         method: 'POST',
@@ -213,28 +214,6 @@ async function convertAudioToText(filename) {
 
     if (response.ok) {
         await loadUploadedFiles(); // Reload file list
-    } else {
-        alert('Request failed');
-    }
-    hideLoadingOverlay()
-}
-
-async function analyzeSentiment(filename, icon_id) {
-    showLoadingOverlay()
-    let language = document.getElementById('languageSelectForSTT').value
-    const response = await fetch('/api/analyze-sentiment', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filename})
-    });
-    const data = JSON.parse(await response.text())
-
-    if (response.ok) {
-        sentiment = data.sentiment
-        //alert('Analyzed Sentiment: ' + sentiment)
-        document.getElementById(icon_id).src='/static/img/' + sentiment + '.png'
     } else {
         alert('Request failed');
     }

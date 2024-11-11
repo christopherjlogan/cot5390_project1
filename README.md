@@ -64,10 +64,12 @@ Done:
 - Researched how to use the multimodal LLM API
 - Removed text-to-speech functionality
 
-To-Do:
+In Progress:
 - Change audio file upload to use LLM API for speech-to-text and sentiment analysis
-- Change audio recording to use LLM API for speech-to-text and sentiment analysis
 - Play audio transcription and sentiment response in browser using TTS API
+
+- To-Do:
+- Change audio recording to use LLM API for speech-to-text and sentiment analysis
 - Implement feedback from grader: "sentiment analysis should be triggered from python at upload time - not js"
 - Implement feedback from grader: "please make links clickable"
 - Disable/remove unused functionality

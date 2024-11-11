@@ -107,14 +107,14 @@ def upload_audio_v2():
         #store the uploaded file into the bucket
         file = upload_to_cloud_storage(file.read(), filename)
         #transcribe the file and analyze sentiment
-        transcription = transcribe_and_analyze_sentiment(file, "en")
+        transcription = transcribe_and_analyze_sentiment(file, request.get_json().get('prompt'))
         print("Transcribed audio to text as", transcription)
         #save transcription to a file
         timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         filename = f"stt_{timestamp}.txt"
         upload_to_cloud_storage(transcription, filename)
         #convert transcription to audio file
-        converted_audio = generate_speech(transcription, "en-us", "male")
+        converted_audio = generate_speech(transcription, "en-us", "MALE")
         #return the audio data
         return jsonify({'response': converted_audio})
     return jsonify({'error': 'File not allowed'}), 400
@@ -159,46 +159,16 @@ def delete_file():
     delete_from_cloud_storage(filename)
     return jsonify({'message': 'File successfully deleted'})
 
-'''@app.route('/api/analyze-sentiment', methods=['POST'])
-# Analyze sentiment of a text file
-# TODO - move this functionality to the upload methods and remove this method
-def analyze_sentiment_from_file():
-    data = request.get_json()
-    filename = data.get('filename')
-    # Get the file from the bucket
-    text_to_analyze = ''
-    if filename.endswith(".txt"):
-        text_to_analyze = download_blob_as_text(BUCKET_NAME, filename)
-    else:
-        # If the file is audio, convert to text first
-        text_to_analyze = convert_to_text(filename, "en")
-    # Run through sentiment analysis
-    document = language_v1.Document(
-        content=text_to_analyze,
-        type_=language_v1.Document.Type.PLAIN_TEXT,
-        language='en'
-    )
-    sentiment = langclient.analyze_sentiment(document=document).document_sentiment.score
-    text_sentiment = evaluate_sentiment_score(sentiment)
-    upload_to_cloud_storage(text_sentiment, filename + "_sentiment.txt")
-    print("Analyzing sentiment for", filename, "as", sentiment, "-",text_sentiment)
-    return jsonify({'text': text_to_analyze,'sentiment': text_sentiment})'''
-
 #---Helper functions---
-def transcribe_and_analyze_sentiment(filename, language):
-    prompt = "Transcribe this audio verbatim and analyze its sentiment as positive, negative, or neutral."
+def transcribe_and_analyze_sentiment(filename, customprompt):
+    if customprompt == "":
+        prompt = "Transcribe this audio verbatim and analyze its sentiment as positive, negative, or neutral."
+    else:
+        prompt = customprompt
     audio_file = Part.from_uri(filename, mime_type="audio/wav")
     contents = [audio_file, prompt]
     response = model.generate_content(contents)
     return response.text
-
-'''def evaluate_sentiment_score(score):
-    if score > 0:
-        return "positive"
-    elif score < 0:
-        return "negative"
-    else:
-        return "neutral"'''
 
 '''def convert_to_text(filename, language):
     audio_content = download_blob_as_bytes(BUCKET_NAME, filename)
