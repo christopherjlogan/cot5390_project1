@@ -184,12 +184,12 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        document.getElementById('audioFileInput').value = ''
         playAudioResponse(response)
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed with status: ' + response.status);
     }
+    document.getElementById('audioFileInput').value = ''
     hideLoadingOverlay()
 });
 

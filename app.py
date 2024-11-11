@@ -83,7 +83,7 @@ def upload_audio_v2():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         #store the uploaded file into the bucket
-        file = upload_to_cloud_storage(file.read(), filename)
+        file_url = upload_to_cloud_storage(file.read(), filename)
         #transcribe the file and analyze sentiment
         transcription = transcribe_and_analyze_sentiment(file, request.get_json().get('prompt'))
         #save transcription to a file
