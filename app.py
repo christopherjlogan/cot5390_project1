@@ -85,7 +85,7 @@ def upload_audio_v2():
         #store the uploaded file into the bucket
         file_url = upload_to_cloud_storage(file.read(), filename)
         #transcribe the file and analyze sentiment
-        transcription = transcribe_and_analyze_sentiment(file, request.get_json().get('prompt'))
+        transcription = transcribe_and_analyze_sentiment(file, request.form.get('prompt'))
         #save transcription to a file
         timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         filename = f"stt_{timestamp}.txt"
