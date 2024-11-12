@@ -152,7 +152,7 @@ uploadRecording.addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        await playAudioResponse(response)
+        await playAudioResponse(JSON.parse(await response.text()))
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed with status: ' + response.status);
@@ -184,7 +184,7 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        playAudioResponse(response)
+        await playAudioResponse(JSON.parse(await response.text()))
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed with status: ' + response.status);
@@ -193,8 +193,8 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
     hideLoadingOverlay()
 });
 
-async function playAudioResponse(response) {
-    const audioUrl = `data:${response.json().mimeType};base64,${response.json().audioContent}`;
+async function playAudioResponse(responseData) {
+    const audioUrl = `data:${responseData.mimeType};base64,${responseData.audioContent}`;
     const audioElement = document.getElementById('responseAudioPlayback')
     audioElement.src = audioUrl;
     audioElement.disabled = false

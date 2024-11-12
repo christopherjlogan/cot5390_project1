@@ -63,15 +63,15 @@ Done:
 - Evaluated the shortcomings of project 2 architecture
 - Researched how to use the multimodal LLM API
 - Removed text-to-speech functionality
+- Implement feedback from grader: "sentiment analysis should be triggered from python at upload time - not js"
+- Implement feedback from grader: "please make links clickable"
 
 In Progress:
 - Change audio file upload to use LLM API for speech-to-text and sentiment analysis
 - Play audio transcription and sentiment response in browser using TTS API
+- Change audio recording to use LLM API for speech-to-text and sentiment analysis
 
 - To-Do:
-- Change audio recording to use LLM API for speech-to-text and sentiment analysis
-- Implement feedback from grader: "sentiment analysis should be triggered from python at upload time - not js"
-- Implement feedback from grader: "please make links clickable"
 - Disable/remove unused functionality
 
 ### Solution Components
