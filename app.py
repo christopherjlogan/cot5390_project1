@@ -101,25 +101,6 @@ def upload_audio_v2():
         })
     return jsonify({'error': 'File not allowed'}), 400
 
-@app.route('/api/speech-to-text/v2', methods=['POST'])
-# Speech to text using Generative AI
-# TODO - implement using GenAI APIs
-def speech_to_text_v2():
-    print("Running speech to text v2")
-    data = request.get_json()
-    filename = data.get('filename')
-    language = data.get('language')
-    #change this line
-    converted_text = ''
-    prompt = "What is Generative AI?"
-    contents = [prompt]
-    response = model.generate_content(contents)
-    print("V2 speech to text response was ", response.text)
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    filename = f"stt_{timestamp}_{language}.txt"
-    upload_to_cloud_storage(response.text, filename)
-    return jsonify({'message': 'Speech converted to text successfully'})
-
 @app.route('/api/delete-file', methods=['POST'])
 # Delete an already uploaded file
 def delete_file():

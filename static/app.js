@@ -152,7 +152,7 @@ uploadRecording.addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        playAudioResponse(response)
+        await playAudioResponse(response)
         await loadUploadedFiles(); // Reload file list
     } else {
         alert('Request failed with status: ' + response.status);
@@ -195,11 +195,10 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
 
 async function playAudioResponse(response) {
 
-    const audioContent = atob(response.audioContent);
-    const audioBlob = new Blob([Uint8Array.from(audioContent, c => c.charCodeAt(0))], { type: 'audio/mp3' });
-    const audioUrl = URL.createObjectURL(audioBlob);
+    const audioUrl = `data:${response.mimeType};base64,${response.audioContent}`;
     const audioElement = document.getElementById('responseAudioPlayback')
     audioElement.src = audioUrl;
+    audioElement.disabled = false
     audioElement.play();
 }
 
