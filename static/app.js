@@ -5,6 +5,7 @@ const startRecording = document.getElementById('startRecording');
 const stopRecording = document.getElementById('stopRecording');
 const uploadRecording = document.getElementById('uploadRecording');
 const audioPlayback = document.getElementById('audioPlayback');
+const responsePlayback = document.getElementById('playTranscription');
 let mediaRecorder;
 let audioChunks = [];
 let audioBlob;
@@ -109,6 +110,10 @@ function displayFiles(files) {
     fileList.appendChild(table)
 }
 
+responsePlayback.addEventListener('click', async () => {
+    playAudioResponse()
+});
+
 // Start audio recording
 startRecording.addEventListener('click', async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -152,8 +157,9 @@ uploadRecording.addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        await playAudioResponse(JSON.parse(await response.text()))
         await loadUploadedFiles(); // Reload file list
+        await setAudioResponse(JSON.parse(await response.text()))
+        playAudioResponse()
     } else {
         alert('Request failed with status: ' + response.status);
     }
@@ -184,8 +190,9 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
     });
 
     if (response.ok) {
-        await playAudioResponse(JSON.parse(await response.text()))
         await loadUploadedFiles(); // Reload file list
+        await setAudioResponse(JSON.parse(await response.text()))
+        playAudioResponse()
     } else {
         alert('Request failed with status: ' + response.status);
     }
@@ -193,11 +200,16 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
     hideLoadingOverlay()
 });
 
-async function playAudioResponse(responseData) {
+async function setAudioResponse(responseData) {
     const audioUrl = `data:${responseData.mimeType};base64,${responseData.audioContent}`;
     const audioElement = document.getElementById('responseAudioPlayback')
     audioElement.src = audioUrl;
     audioElement.disabled = false
+    document.getElementById('playTranscription').disabled = false
+}
+
+function playAudioResponse() {
+    const audioElement = document.getElementById('responseAudioPlayback')
     audioElement.play();
 }
 

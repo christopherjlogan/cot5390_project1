@@ -20,12 +20,12 @@
     <h2>Custom Transcription Prompt</h2>
     <textarea id="prompt" rows="5" cols="60" placeholder=""></textarea><br>
     <i>Leave blank to use default prompt.</i>
+    <button id="playTranscription" disabled>Play Transcription</button>
     <hr>
     <!-- Audio file upload form -->
     <h2>Upload An Audio File</h2>
     <input type="file" id="audioFileInput" accept=".mp3, .wav, .ogg, .m4a">
     <button id="uploadFile">Upload</button>
-
     <hr>
     <h2>Record Audio</h2>
     <!-- Audio recorder interface -->
@@ -34,7 +34,6 @@
     <audio id="audioPlayback" controls></audio>
     <br>
     <button id="uploadRecording" disabled>Upload Recording</button>
-
     <hr>
     <h2>Uploaded Files</h2>
     <div id="fileList">Loading files...</div>
