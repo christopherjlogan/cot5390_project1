@@ -194,8 +194,7 @@ document.getElementById('uploadFile').addEventListener('click', async () => {
 });
 
 async function playAudioResponse(response) {
-
-    const audioUrl = `data:${response.mimeType};base64,${response.audioContent}`;
+    const audioUrl = `data:${response.json().mimeType};base64,${response.json().audioContent}`;
     const audioElement = document.getElementById('responseAudioPlayback')
     audioElement.src = audioUrl;
     audioElement.disabled = false
