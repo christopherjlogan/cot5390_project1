@@ -5,7 +5,6 @@ const startRecording = document.getElementById('startRecording');
 const stopRecording = document.getElementById('stopRecording');
 const uploadRecording = document.getElementById('uploadRecording');
 const audioPlayback = document.getElementById('audioPlayback');
-const responsePlayback = document.getElementById('playTranscription');
 let mediaRecorder;
 let audioChunks = [];
 let audioBlob;
@@ -110,10 +109,6 @@ function displayFiles(files) {
     fileList.appendChild(table)
 }
 
-responsePlayback.addEventListener('click', async () => {
-    playAudioResponse()
-});
-
 // Start audio recording
 startRecording.addEventListener('click', async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -205,7 +200,6 @@ async function setAudioResponse(responseData) {
     const audioElement = document.getElementById('responseAudioPlayback')
     audioElement.src = audioUrl;
     audioElement.disabled = false
-    document.getElementById('playTranscription').disabled = false
 }
 
 function playAudioResponse() {
