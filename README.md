@@ -26,6 +26,30 @@ This project is a proof of concept for the uploading, recording and automated bi
 
 ## Architecture
 ### Project Planning
+#### Project 3
+- Evaluated the shortcomings of project 2 architecture
+- Researched how to use the multimodal LLM API
+- Implement feedback from grader: "sentiment analysis should be triggered from python at upload time - not js"
+- Implement feedback from grader: "please make links clickable"
+- Change audio file upload to use LLM API for speech-to-text and sentiment analysis
+- Change audio recording to use LLM API for speech-to-text and sentiment analysis
+- Play audio transcription and sentiment response in browser using TTS API
+- Removed text-to-speech functionality
+- Disable/remove unused functionality
+
+#### Project 2
+In the implementation of Project 2, the following steps were followed.  I followed the following steps:
+- Evaluated the shortcomings of project 1 architecture
+- Researched how to build Single Page Architecture (SPA) app using Python and JavaScript
+- Created and referenced JavaScript and Cascading Style Sheet (CSS)
+- Refactored HTML page and python app for SPA
+- Researched Language API usage for sentiment detection
+- Enabled Language API
+- Implemented sentiment detection API call
+- Added delete file API call
+- Enabled file deletion from web page
+- Designed and implemented extracting sentiment from uploaded sentiment files
+
 #### Project 1
 In the implementation of this project, the following steps were followed.  During each of the steps, iterative coding and test took place.
 - Researched how to build web apps in Python
@@ -44,30 +68,6 @@ In the implementation of this project, the following steps were followed.  Durin
 - Setup Google App Engine and Admin
 - Setup Google Cloud Build with Trigger on Github Repo branch push
 - Tested and troubleshooted application running on Google App Engine
-
-#### Project 2
-In the implementation of Project 2, the following steps were followed.  I followed the following steps:
-- Evaluated the shortcomings of project 1 architecture
-- Researched how to build Single Page Architecture (SPA) app using Python and JavaScript
-- Created and referenced JavaScript and Cascading Style Sheet (CSS)
-- Refactored HTML page and python app for SPA
-- Researched Language API usage for sentiment detection
-- Enabled Language API
-- Implemented sentiment detection API call
-- Added delete file API call
-- Enabled file deletion from web page
-- Designed and implemented extracting sentiment from uploaded sentiment files
-
-#### Project 3
-- Evaluated the shortcomings of project 2 architecture
-- Researched how to use the multimodal LLM API
-- Implement feedback from grader: "sentiment analysis should be triggered from python at upload time - not js"
-- Implement feedback from grader: "please make links clickable"
-- Change audio file upload to use LLM API for speech-to-text and sentiment analysis
-- Change audio recording to use LLM API for speech-to-text and sentiment analysis
-- Play audio transcription and sentiment response in browser using TTS API
-- Removed text-to-speech functionality
-- Disable/remove unused functionality
 
 ### Solution Components
 ![COT5390 Project3 Architecture.jpg](reports/COT5390%20Project3%20Architecture.jpg)
@@ -137,30 +137,45 @@ Discuss what are the problems of this solution, assuming it needs to handle mult
 
 ## Application Instructions
 1. Uploading Speech Audio Files
-   - To upload a file, click the "Choose File" button and select the audio file.  Once selected, click the Upload button.  
+   - To upload a file, click the "Choose File" button and select the audio file.  Once selected, click the Upload button.
+   - The file will be uploaded and processed.
+   - The file that was uploaded and its transcription will be displayed in the Uploaded Files section.
+   - The transcription of the file will be played in the browser.
 ![screenshot_2a.jpg](reports/screenshot_2a.jpg)
 1. Recording Speech Audio
    - To record speech, click the "Start Recording" button
    - Once done speaking, click the "Stop Recording" button
-   - Click the "Upload Recording" button to upload your recorded audio  
+   - Click the "Upload Recording" button to upload your recorded audio
+   - The audio will be uploaded and processed.
+   - The audio that was uploaded and its transcription will be displayed in the Uploaded Files section.
+   - The transcription of the audio will be played in the browser.
 ![screenshot_2b.jpg](reports/screenshot_2b.jpg)
 1. Play Transcription Audio
-   - To play the transcription audio, click the play button audio player control
+   - To play the transcription audio again, click the Play Transcription audio player control
+
+![screenshot_play_transcription.jpg](reports/screenshot_play_transcription.jpg)
+1. Customize Transcription Prompt
+   - To customize the transcription prompt, enter your custom prompt in the text box
+   - The prompt will be used for future transcriptions until the web page is reloaded
+![screenshot_custom_prompt.jpg](reports/screenshot_custom_prompt.jpg)
 1. Playing Uploaded Speech Audio
    - Uploaded audio files are listed under the Uploaded Files section
    - To play previously uploaded audio files, click the play button audio player control  
-![screenshot_2d.jpg](reports/screenshot_2d.jpg)
+![screenshot_uploaded_files.jpg](reports/screenshot_uploaded_files.jpg)
 1. Download Audio File
    - To download an uploaded audio file, click the link on the name of the file to download it.
-![screenshot_2d.jpg](reports/screenshot_2d.jpg)
+![screenshot_uploaded_files.jpg](reports/screenshot_uploaded_files.jpg)
 1. Download Transcription File
    - To download a text file, click the link on the name of the file to download it.
-![screenshot_2h.jpg](reports/screenshot_2h.jpg)
+![screenshot_uploaded_files.jpg](reports/screenshot_uploaded_files.jpg)
 1. Delete Uploaded File
-   - To delete a file, click the ![screenshot_2j.jpg =50x50](reports/screenshot_2j.jpg) icon next to the file
+   - To delete a file, click the trash icon next to the file
    - The list of files will refresh
+   - The file will be deleted from the cloud storage
+
+![screenshot_uploaded_files.jpg](reports/screenshot_uploaded_files.jpg)
 
 ## Lessons Learned
-1. An indicator is needed on the front-end to indicate that the REST API call is processing
-1. How to use the JavaScript console in Chrome to troubleshoot API call issues
-1. How to use maps JavaScript
+1. How to call the Vertex AI API
+2. How to return encoded audio in a JSON response
+3. How to play audio in the browser
