@@ -1,6 +1,5 @@
 import base64
 import os
-
 import vertexai
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, jsonify, request
 #from google import generativeai as gemini

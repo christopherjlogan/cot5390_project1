@@ -59,23 +59,18 @@ In the implementation of Project 2, the following steps were followed.  I follow
 - Designed and implemented extracting sentiment from uploaded sentiment files
 
 #### Project 3
-Done:
 - Evaluated the shortcomings of project 2 architecture
 - Researched how to use the multimodal LLM API
-- Removed text-to-speech functionality
 - Implement feedback from grader: "sentiment analysis should be triggered from python at upload time - not js"
 - Implement feedback from grader: "please make links clickable"
-
-In Progress:
 - Change audio file upload to use LLM API for speech-to-text and sentiment analysis
-- Play audio transcription and sentiment response in browser using TTS API
 - Change audio recording to use LLM API for speech-to-text and sentiment analysis
-
-- To-Do:
+- Play audio transcription and sentiment response in browser using TTS API
+- Removed text-to-speech functionality
 - Disable/remove unused functionality
 
 ### Solution Components
-![COT5390 Project2 Architecture.jpg](reports/COT5390%20Project2%20Architecture.jpg)
+![COT5390 Project3 Architecture.jpg](reports/COT5390%20Project3%20Architecture.jpg)
 
 ## Implementation Details
 ### Python Web Application
@@ -91,10 +86,6 @@ Files:
  - service-account.json (secret not stored in source code repo)
 - static
  - img
-  - negative.png
-  - neutral.png
-  - positive.png
-  - sentiment-analysis.png
   - trash.png
  - app.js
  - styles.css
@@ -111,8 +102,8 @@ Files:
 Runs the Python web application.  Configured to give the service account access to deploy applications.
 ### Google Cloud Storage API
 Storing speech audio files.  Google Cloud Storage is needed because Google App Engine cannot store persistently store files.  Converts text into speech audio.  Converts text into speech audio.  Configured to give access to the Google Cloud project service account.  Configured to give public access to the stored files since users are not authenticated.
-### Google Speech API
-Converts speech audio files into text.  Converts text into speech audio.  Configured to give access to the Google Cloud project service account.
+### Google Vertex AI API
+Large Language Model used to convert speech files to text and analyze its sentiment.
 ### Google Text-To-Speech API
 Converts text into speech audio.  Configured to give access to the Google Cloud project service account.
 ### Google Language API
@@ -126,63 +117,50 @@ Stores source code.  Configured as a public repo for sharing for grading.
 Discuss what are the problems of this solution, assuming it needs to handle multiple users and scale as discussed in class. Discuss what are the advantages of this solution as implemented in this project.
 ### Pros
 1. Using Single Page Architecture with REST APIs created a separation of concerns making UI and API more flexible.
-2. Using Google Cloud Build with push triggers allows for continuous deployment of the code.
-3. Using Google Cloud Storage makes the application ephemeral and therefore more fault tolerant.
-4. Using Google App Engine, the application can be scaled since it is stateless.
+1. Using Google Cloud Build with push triggers allows for continuous deployment of the code.
+1. Using Google Cloud Storage makes the application ephemeral and therefore more fault-tolerant.
+1. Using Google App Engine, the application can be scaled since it is stateless.
+1. Vertex AI API is a powerful tool for converting speech to text and analyzing sentiment.
 
 ### Cons
 1. The current architecture only supports a single user because all of the uploaded files are stored in a single cloud storage bucket without user segmentation.
-2. The user interface is very basic and would not work well with many features.
-3. No tests are implemented so testing the application required deploying and troubleshooting.
-4. More effective error handling should be implemented
-5. It is confusing that the cloud project, repo and other resources are named as "project 1"
-6. The file sentiments should be stored in a database ideally
+1. The user interface is very basic and would not work well with many features.
+1. No tests are implemented so testing the application required deploying and troubleshooting.
+1. More effective error handling should be implemented
+1. It is confusing that the cloud project, repo and other resources are named as "project 1"
+1. The sentiments are part of the whole transcription response so not easily separated logically from the transcription.
 
 ## Problems Encountered and Solutions
-1. Refactoring to SPA took significant refactoring of both front and back-ends of the application.
-2. It took several iterations to understand how to use the Language API for sentiment detection
-3. It was challening to extract the previously detected file sentiment.
+1. Refactoring out APIs from the previous project and replacing them with the LLM API.  Required carefully analyzing what was being used and what could be removed.
+1. Implementing the LLM API required understanding how to use the API and how to integrate it into the application.
+1. Playing the audio response required understanding how to base64 encode the audio response and play it in the browser.
 
 ## Application Instructions
 1. Uploading Speech Audio Files
    - To upload a file, click the "Choose File" button and select the audio file.  Once selected, click the Upload button.  
 ![screenshot_2a.jpg](reports/screenshot_2a.jpg)
-2. Recording Speech Audio
+1. Recording Speech Audio
    - To record speech, click the "Start Recording" button
    - Once done speaking, click the "Stop Recording" button
    - Click the "Upload Recording" button to upload your recorded audio  
 ![screenshot_2b.jpg](reports/screenshot_2b.jpg)
-3. Playing Uploaded Speech Audio
+1. Play Transcription Audio
+   - To play the transcription audio, click the play button audio player control
+1. Playing Uploaded Speech Audio
    - Uploaded audio files are listed under the Uploaded Files section
    - To play previously uploaded audio files, click the play button audio player control  
 ![screenshot_2d.jpg](reports/screenshot_2d.jpg)
-4. Converting Text to Speech Audio File
-   - To convert text to speech, type your message into the textbox and choose the language and gender for conversion
-   - Click the "Convert to Speech" button 
-   - The converted text is stored as a file which can be downloaded in the Uploaded Files
-![screenshot_2c.jpg](reports/screenshot_2c.jpg)
-5. Converting Speech Audio File to Text
-   - Select the target language: ![screenshot_2f.jpg](reports/screenshot_2f.jpg)
-   - Next to the desired audio file, click the ![speech-icon.jpg](reports/speech-icon.jpg) button
-   - The converted text is stored as a file which can be downloaded in the Uploaded Files
-6. Detecting Sentiment
-   - Click the ![sentiment-analysis-icon.jpg](reports/sentiment-analysis-icon.jpg) icon next to the desired file
-   - Based upon the detected sentiment, the icon will change according:
-   - ![positiveicon.jpg](reports/positiveicon.jpg) = POSITIVE
-   - ![negativeicon.jpg](reports/negativeicon.jpg) = NEGATIVE
-   - ![neutralicon.jpg](reports/neutralicon.jpg) = NEUTRAL
-   - A text file will be created with the name of the analyzed file appended with '_sentiment.txt'
-7. Download Audio File
+1. Download Audio File
    - To download an uploaded audio file, click the link on the name of the file to download it.
 ![screenshot_2d.jpg](reports/screenshot_2d.jpg)
-8. Download Text File
+1. Download Transcription File
    - To download a text file, click the link on the name of the file to download it.
 ![screenshot_2h.jpg](reports/screenshot_2h.jpg)
-9. Delete Uploaded File
+1. Delete Uploaded File
    - To delete a file, click the ![screenshot_2j.jpg =50x50](reports/screenshot_2j.jpg) icon next to the file
    - The list of files will refresh
 
 ## Lessons Learned
 1. An indicator is needed on the front-end to indicate that the REST API call is processing
-2. How to use the JavaScript console in Chrome to troubleshoot API call issues
-3. How to use maps JavaScript
+1. How to use the JavaScript console in Chrome to troubleshoot API call issues
+1. How to use maps JavaScript
