@@ -28,10 +28,12 @@ steps:
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
-      - 'run', 'deploy', 'app',           # Change `my-flask-app` to your Cloud Run service name
-      - '--image=gcr.io/cot-5930-course-project-441622/app', # Reference the image built in Step 1
-      - '--platform=managed',
-      - '--region=us-central1',                    # Set your preferred region
+      - 'run'
+      - 'deploy'
+      - 'app'         # Change `my-flask-app` to your Cloud Run service name
+      - '--image=gcr.io/cot-5930-course-project-441622/app' # Reference the image built in Step 1
+      - '--platform=managed'
+      - '--region=us-central1'                  # Set your preferred region
       - '--allow-unauthenticated'                  # Optional: Allow public access
 
 options:
