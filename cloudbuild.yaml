@@ -21,12 +21,15 @@ steps:
   # Cloud Run build and deploy steps
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build container image'
     args: ['build', '-t', 'gcr.io/cot-5930-course-project-441622/app', '.']
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push container image'
     args: ['push', 'gcr.io/cot-5930-course-project-441622/app']
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run'
     entrypoint: gcloud
     args: ['run', 'deploy', 'cot5390-project1', '--image', 'gcr.io/cot-5930-course-project-441622/app', '--region', 'us-west1']
 images:
