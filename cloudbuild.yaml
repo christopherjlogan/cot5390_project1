@@ -21,7 +21,6 @@ steps:
     # Step 1: Build the container image using Cloud Buildpacks
   - name: 'gcr.io/buildpacks/builder:v1'
     args:
-      - '--path=.'
       - '--tag=gcr.io/cot-5930-course-project-441622/app'
 
     # Step 2: Deploy the container image to Cloud Run
