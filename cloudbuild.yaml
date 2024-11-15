@@ -1,5 +1,5 @@
 steps:
-  # Install dependencies
+  # App Engine deploy step 1
   - name: 'python:3.9-slim'
     id: 'Install dependencies'
     entrypoint: 'bash'
@@ -9,7 +9,7 @@ steps:
         pip install --upgrade pip
         pip install -r requirements.txt
 
-  # Deploy to Google App Engine
+  # App Engine deploy step 2
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'Deploy to App Engine'
     entrypoint: 'bash'
@@ -18,22 +18,19 @@ steps:
       - |
         gcloud app deploy app.yaml --quiet
 
-    # Step 1: Build the container image using Cloud Buildpacks
-  - name: 'gcr.io/buildpacks/builder:v1'
-    args:
-      - '--tag=gcr.io/cot-5930-course-project-441622/app'
-
-    # Step 2: Deploy the container image to Cloud Run
+  # Cloud Run build and deploy steps
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/cot-5930-course-project-441622/app', '.']
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/cot-5930-course-project-441622/app']
+  # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'app'         # Change `my-flask-app` to your Cloud Run service name
-      - '--image=gcr.io/cot-5930-course-project-441622/app' # Reference the image built in Step 1
-      - '--platform=managed'
-      - '--region=us-central1'                  # Set your preferred region
-      - '--allow-unauthenticated'                  # Optional: Allow public access
+    entrypoint: gcloud
+    args: ['run', 'deploy', 'cot5390-project1', '--image', 'gcr.io/cot-5930-course-project-441622/app', '--region', 'us-west1']
+images:
+- gcr.io/cot-5930-course-project-441622/app
 
 options:
   logging: CLOUD_LOGGING_ONLY
